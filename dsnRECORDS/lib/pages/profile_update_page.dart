@@ -1,0 +1,177 @@
+import 'package:flutter/material.dart';
+import 'package:dsn_records/rest/rest_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dsn_records/widgets/update_profile_form_fields_widget.dart';
+
+import 'login_page.dart';
+
+class UpdateProfilePage extends StatefulWidget {
+  @override
+  _UpdateProfilePageState createState() => _UpdateProfilePageState();
+}
+
+class _UpdateProfilePageState extends State<UpdateProfilePage> {
+  final _formKey = GlobalKey<FormState>();
+  int? userID;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserID();
+  }
+
+  Future<void> _loadUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userID = prefs.getInt('id');
+    });
+  }
+  void clearSharedPreferences() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
+  }
+
+  // Controllers для полей ввода
+  final _usernameController = TextEditingController();
+  final _userPasswordController = TextEditingController();
+  final _userEmailController = TextEditingController();
+
+  // Сохранение данных
+  Future<void> _saveData() async {
+    if (_formKey.currentState!.validate()) {
+      // Отправляем запрос на сервер
+      final response = await REST.updateUser({
+        'id': userID.toString(),
+        'username': _usernameController.text.trim(),
+        'user_email': _userEmailController.text.trim(),
+        'user_password': _userPasswordController.text.trim(),
+      });
+
+      if (response['error'] != null) {
+        // Если сервер вернул ошибку, отображаем сообщение в приложении
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Ошибка'),
+              content: Text(response['error']),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // вызываем метод очистки SharedPreferences
+        clearSharedPreferences();
+        // переходим на страницу логина
+        Route route = MaterialPageRoute(builder: (_) => LoginPage());
+        Navigator.pushReplacement(context, route);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Обновление профиля',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ]),
+              SizedBox(height: 16.0),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    ProfileFormFields(
+                      controller: _usernameController,
+                      data: Icons.person,
+                      txtHint: "Username",
+                      obsecure: false,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Введите новое имя пользователя!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    ProfileFormFields(
+                      controller: _userPasswordController,
+                      data: Icons.lock,
+                      txtHint: "Password",
+                      obsecure: true,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Введите новый пароль!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    ProfileFormFields(
+                      controller: _userEmailController,
+                      data: Icons.email,
+                      txtHint: "Email",
+                      obsecure: false,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Введите новую почту!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: _saveData,
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black,
+                        minimumSize: Size(MediaQuery.of(context).size.width * 0.3, 40),
+                      ),
+                      child: Text(
+                        'Сохранить',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

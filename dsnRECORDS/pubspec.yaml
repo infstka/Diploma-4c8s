@@ -1,0 +1,52 @@
+name: dsn_records
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0-339.0.dev <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  http: any
+  shared_preferences: any
+  fluttertoast: any
+  carousel_slider: any
+  table_calendar: any
+  line_awesome_flutter: any
+  intl: any
+  sqflite: any
+  universal_platform: any
+  url_strategy: any
+  dcdg: 3.0.0
+
+dev_dependencies:
+  json_serializable:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: any
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/logo.png"
+  web:
+    generate: true
+    image_path: "assets/icon/logo.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/logo.png"
+  macos:
+    generate: true
+    image_path: "assets/icon/logo.png"
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/

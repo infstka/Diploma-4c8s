@@ -1,0 +1,330 @@
+@startuml
+set namespaceSeparator ::
+
+class "dsn_records::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "dsn_records::main.dart::MyApp"
+
+class "dsn_records::main.dart::MyHomePage" {
+  +String title
+  +State<MyHomePage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::main.dart::MyHomePage"
+
+class "dsn_records::main.dart::_MyHomePageState" {
+  -SharedPreferences _sharedPreferences
+  -AnimationController _animationController
+  -Animation<double> _animation
+  +void initState()
+  +void isLogin()
+  +void dispose()
+  +Widget build()
+}
+
+"dsn_records::main.dart::_MyHomePageState" o-- "shared_preferences::shared_preferences.dart::SharedPreferences"
+"dsn_records::main.dart::_MyHomePageState" o-- "flutter::src::animation::animation_controller.dart::AnimationController"
+"dsn_records::main.dart::_MyHomePageState" o-- "flutter::src::animation::animation.dart::Animation<double>"
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::main.dart::_MyHomePageState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "dsn_records::main.dart::_MyHomePageState"
+
+class "dsn_records::pages::admin_page.dart::AdminScreen" {
+  +_AdminScreenState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::admin_page.dart::AdminScreen"
+
+class "dsn_records::pages::admin_page.dart::_AdminScreenState" {
+  -List<dynamic> _users
+  -List<dynamic> _blocked_users
+  -List<dynamic> _bookings
+  -List<dynamic> _bookings_archive
+  +int? userID
+  +String? userType
+  +String usersTable
+  +String blockedUsersTable
+  +String bookingsTable
+  +String deletedBookingsTable
+  -bool _dataFromREST
+  +void initState()
+  -Future<void> _loadUserType()
+  -Future<void> _getUsers()
+  -Future<void> _saveUsersToLocalDB()
+  -Future<List<dynamic>> _getUsersFromLocalDB()
+  -Future<void> _getBlockedUsers()
+  -Future<void> _saveBlockedUsersToLocalDB()
+  -Future<List<dynamic>> _getBlockedUsersFromLocalDB()
+  -void _getCurrentUser()
+  -void _deleteUser()
+  -void _blockUser()
+  -void _unblockUser()
+  -void _setAdmin()
+  -void _setUser()
+  -Future<void> _getBookings()
+  -Future<void> _saveBookingsToLocalDB()
+  -Future<List<dynamic>> _getBookingsFromLocalDB()
+  -bool _isDeletable()
+  -void _deleteBooking()
+  -Future<void> _getDeletedBookings()
+  -Future<void> _saveArchivedBookingsToLocalDB()
+  -Future<List<dynamic>> _getArchivedBookingsFromLocalDB()
+  -void _restoreBooking()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::admin_page.dart::_AdminScreenState"
+
+class "dsn_records::pages::home_page.dart::HomePage" {
+  +int? selectedIndex
+  +State<StatefulWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::home_page.dart::HomePage"
+
+class "dsn_records::pages::home_page.dart::HomePageState" {
+  +String? userType
+  -int _currentIndex
+  -List<Widget> _children
+  +Future<bool> checkConnection()
+  +void onTabTapped()
+  +void initState()
+  -Future<void> _loadUserType()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::home_page.dart::HomePageState"
+
+class "dsn_records::pages::home_page.dart::HomeScreen" {
+  -List<String> _imagePaths
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "dsn_records::pages::home_page.dart::HomeScreen"
+
+class "dsn_records::pages::login_page.dart::LoginPage" {
+  +State<StatefulWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::login_page.dart::LoginPage"
+
+class "dsn_records::pages::login_page.dart::_LoginPageState" {
+  -GlobalKey<FormState> _formKey
+  -TextEditingController _emailController
+  -TextEditingController _passwordController
+  -SharedPreferences _sharedPreferences
+  +Widget build()
+  +dynamic doLogin()
+}
+
+"dsn_records::pages::login_page.dart::_LoginPageState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"dsn_records::pages::login_page.dart::_LoginPageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"dsn_records::pages::login_page.dart::_LoginPageState" o-- "shared_preferences::shared_preferences.dart::SharedPreferences"
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::login_page.dart::_LoginPageState"
+
+class "dsn_records::pages::profile_history.dart::BookingsPage" {
+  +_BookingsPageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::profile_history.dart::BookingsPage"
+
+class "dsn_records::pages::profile_history.dart::_BookingsPageState" {
+  -List<dynamic> _bookings
+  +String bookingsTable
+  -bool _dataFromREST
+  +void initState()
+  -void _loadUserIDAndBookings()
+  -Future<void> _getUserBookings()
+  -Future<void> _saveUserBookingsToLocalDB()
+  -Future<List<dynamic>> _getUserBookingsFromLocalDB()
+  -void _deleteBooking()
+  -bool _isDeletable()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::profile_history.dart::_BookingsPageState"
+
+class "dsn_records::pages::profile_page.dart::ProfileScreen" {
+  +_ProfileScreenState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::profile_page.dart::ProfileScreen"
+
+class "dsn_records::pages::profile_page.dart::_ProfileScreenState" {
+  +int? userID
+  +String? userName
+  +String? userEmail
+  +void initState()
+  -Future<void> _loadUserID()
+  -Future<void> _loadUserName()
+  -Future<void> _loadUserEmail()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::profile_page.dart::_ProfileScreenState"
+
+class "dsn_records::pages::profile_update_page.dart::UpdateProfilePage" {
+  +_UpdateProfilePageState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::profile_update_page.dart::UpdateProfilePage"
+
+class "dsn_records::pages::profile_update_page.dart::_UpdateProfilePageState" {
+  -GlobalKey<FormState> _formKey
+  +int? userID
+  -TextEditingController _usernameController
+  -TextEditingController _userPasswordController
+  -TextEditingController _userEmailController
+  +void initState()
+  -Future<void> _loadUserID()
+  +void clearSharedPreferences()
+  -Future<void> _saveData()
+  +Widget build()
+}
+
+"dsn_records::pages::profile_update_page.dart::_UpdateProfilePageState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"dsn_records::pages::profile_update_page.dart::_UpdateProfilePageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::profile_update_page.dart::_UpdateProfilePageState"
+
+class "dsn_records::pages::register_page.dart::RegisterPage" {
+  +State<StatefulWidget> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::register_page.dart::RegisterPage"
+
+class "dsn_records::pages::register_page.dart::RegisterPageState" {
+  +TextEditingController username
+  +TextEditingController email
+  +TextEditingController password
+  -GlobalKey<FormState> _formKey
+  +Widget build()
+  +dynamic doRegister()
+  -Widget _backButton()
+  -Widget _LoginText()
+}
+
+"dsn_records::pages::register_page.dart::RegisterPageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"dsn_records::pages::register_page.dart::RegisterPageState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::register_page.dart::RegisterPageState"
+
+class "dsn_records::pages::review_page.dart::ReviewScreen" {
+  +_ReviewScreenState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::review_page.dart::ReviewScreen"
+
+class "dsn_records::pages::review_page.dart::_ReviewScreenState" {
+  -List<dynamic> _reviews
+  +int? userID
+  +String? userName
+  +String? userType
+  -bool _isFormVisible
+  -int _selectedRating
+  -TextEditingController _commentController
+  +String reviewTable
+  -bool _reviewsFromREST
+  +void initState()
+  -Future<void> _loadUserID()
+  -Future<void> _loadUserName()
+  -Future<void> _loadUserType()
+  -Future<void> _loadReviews()
+  -Future<void> _saveReviewsToLocalDB()
+  -Future<List<dynamic>> _loadReviewsFromLocalDB()
+  -Future<void> _addReview()
+  -void _deleteReview()
+  -void _handleUpdateReview()
+  +Widget build()
+}
+
+"dsn_records::pages::review_page.dart::_ReviewScreenState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::review_page.dart::_ReviewScreenState"
+
+class "dsn_records::pages::timetable_page.dart::ScheduleScreen" {
+  +State<ScheduleScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "dsn_records::pages::timetable_page.dart::ScheduleScreen"
+
+class "dsn_records::pages::timetable_page.dart::_ScheduleScreenState" {
+  +String selectedTime
+  -DateTime _selectedDate
+  +int? userID
+  +List<TimeSlot> timeSlots
+  +void initState()
+  -Future<void> _loadUserID()
+  +Future<void> updateTime()
+  +dynamic getTodayDay()
+  +Future<void> fetchBookedTimeSlots()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "dsn_records::pages::timetable_page.dart::_ScheduleScreenState"
+
+class "dsn_records::rest::rest_api.dart::REST" {
+  {static} +String BASE_URL
+  {static} +Future<dynamic> userLogin()
+  {static} +Future<dynamic> userRegister()
+  {static} +Future<dynamic> getUsers()
+  {static} +Future<dynamic> getBlockedUsers()
+  {static} +Future<dynamic> deleteUser()
+  {static} +Future<dynamic> blockUser()
+  {static} +Future<dynamic> unblockUser()
+  {static} +Future<dynamic> setAdmin()
+  {static} +Future<dynamic> setUser()
+  {static} +Future<dynamic> getBookings()
+  {static} +Future<dynamic> getDeletedBookings()
+  {static} +Future<dynamic> updateUser()
+  {static} +Future<dynamic> getUserBookings()
+  {static} +Future<List<TimeSlot>> fetchData()
+  {static} +Future<void> updateTime()
+  {static} +Future<dynamic> deleteBooking()
+  {static} +Future<dynamic> restoreBooking()
+  {static} +Future<List<dynamic>> getReviews()
+  {static} +Future<bool> addReview()
+  {static} +Future<dynamic> deleteReview()
+  {static} +Future<bool> updateReview()
+}
+
+class "dsn_records::sqflite::localDB.dart::DatabaseProvider" {
+  {static} +DatabaseProvider dbProvider
+  -Database? _database
+  +Future<Database> database
+  +Future<Database> createDatabase()
+}
+
+"dsn_records::sqflite::localDB.dart::DatabaseProvider" o-- "dsn_records::sqflite::localDB.dart::DatabaseProvider"
+"dsn_records::sqflite::localDB.dart::DatabaseProvider" o-- "sqflite_common::sqlite_api.dart::Database?"
+
+class "dsn_records::widgets::auth_form_fields_widgets.dart::AuthFormFields" {
+  +TextEditingController controller
+  +IconData data
+  +String txtHint
+  +bool obsecure
+  +Widget build()
+}
+
+"dsn_records::widgets::auth_form_fields_widgets.dart::AuthFormFields" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"dsn_records::widgets::auth_form_fields_widgets.dart::AuthFormFields" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "dsn_records::widgets::auth_form_fields_widgets.dart::AuthFormFields"
+
+class "dsn_records::widgets::time_slot.dart::TimeSlot" {
+  +int userId
+  +String timerange
+  +int status
+}
+
+class "dsn_records::widgets::update_profile_form_fields_widget.dart::ProfileFormFields" {
+  +TextEditingController controller
+  +IconData data
+  +String txtHint
+  +bool obsecure
+  +Widget build()
+}
+
+"dsn_records::widgets::update_profile_form_fields_widget.dart::ProfileFormFields" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"dsn_records::widgets::update_profile_form_fields_widget.dart::ProfileFormFields" o-- "flutter::src::widgets::icon_data.dart::IconData"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "dsn_records::widgets::update_profile_form_fields_widget.dart::ProfileFormFields"
+
+
+@enduml
