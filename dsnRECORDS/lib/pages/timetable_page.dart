@@ -80,6 +80,14 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     }
   }
 
+  Future<bool> checkAvailability(String selectedTime) async {
+    String formattedDate = DateFormat('dd.MM.y').format(_selectedDate);
+    List<TimeSlot> bookedSlots = await REST.fetchData(formattedDate);
+
+    return !bookedSlots.any((bookedSlot) =>
+    bookedSlot.timerange == selectedTime && bookedSlot.status == 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd.MM.y').format(_selectedDate);
@@ -251,21 +259,83 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: selectedTime != "" ? () {
-                  updateTime();
-                  setState(() {
-                    selectedTime = "";
-                  });
-                  fetchBookedTimeSlots();
+                onPressed: selectedTime != "" ? () async {
+                  bool isAvailable = await checkAvailability(selectedTime);
+
+                  if (isAvailable) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Подтверждение"),
+                          content: Text("Вы хотите забронировать студию ${DateFormat("dd.MM.y").format(_selectedDate)} в $selectedTime?"),                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                updateTime();
+                                setState(() {
+                                  selectedTime = "";
+                                });
+                                fetchBookedTimeSlots();
+
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text("Время забронировано"),
+                                      content: Text("Вы можете просмотреть бронирования в профиле пользователя"),
+                                      actions: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                              child: Text("Да"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text("Нет"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Время недоступно"),
+                          content: Text("Пожалуйста, выберите другое"),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                fetchBookedTimeSlots();
+                              },
+                              child: Text("OK"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 } : null,
-                child:
-                Text(
+                child: Text(
                   "Забронировать",
                   style: TextStyle(fontSize: 15, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,
-                  minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40), // установите желаемый минимальный размер кнопки
+                  minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
                 ),
               ),
               SizedBox(height: 16.0),

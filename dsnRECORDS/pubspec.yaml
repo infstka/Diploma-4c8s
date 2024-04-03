@@ -22,6 +22,7 @@ dependencies:
   universal_platform: any
   url_strategy: any
   dcdg: 3.0.0
+  image_picker: any
 
 dev_dependencies:
   json_serializable:

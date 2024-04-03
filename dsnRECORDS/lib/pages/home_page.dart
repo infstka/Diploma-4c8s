@@ -5,10 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/bottom_navigation_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dsn_records/pages/admin_page.dart';
-import 'package:dsn_records/pages/profile_page.dart';
 import 'package:dsn_records/pages/timetable_page.dart';
+import 'package:dsn_records/pages/rental_page.dart';
+import 'package:dsn_records/pages/profile_page.dart';
 import 'package:dsn_records/pages/review_page.dart';
+import 'package:dsn_records/pages/about_page.dart';
+import 'package:dsn_records/pages/admin_page.dart';
 import 'package:dsn_records/pages/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +28,7 @@ class HomePageState extends State<HomePage> {
   String? userType;
   int _currentIndex = 0;
 
-  final List<Widget> _children = [HomeScreen(), ScheduleScreen(), ProfileScreen(), ReviewScreen(), AdminScreen()];
+  final List<Widget> _children = [HomeScreen(), ScheduleScreen(), RentalScreen(), ProfileScreen(), ReviewScreen(), AboutScreen(), AdminScreen()];
 
   Future<bool> checkConnection() async {
     try {
@@ -123,12 +125,20 @@ class HomePageState extends State<HomePage> {
             label: 'Расписание',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.monetization_on_outlined),
+            label: 'Аренда',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_rate),
             label: 'Отзывы',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            label: 'О студии',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.admin_panel_settings),
@@ -148,12 +158,20 @@ class HomePageState extends State<HomePage> {
             label: 'Расписание',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.monetization_on_outlined),
+            label: 'Аренда',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star_rate),
             label: 'Отзывы',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info_outline),
+            label: 'О студии',
           ),
           // BottomNavigationBarItem(
           //   icon: Icon(Icons.settings), // Иконка для вкладки "Настройки"

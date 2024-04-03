@@ -2,9 +2,23 @@ const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
 
-// Получить все отзывы
+// Получить все отзывы + сортировка
 router.get('/', (req, res) => {
-  const sqlQuery = `CALL get_reviews()`;
+  const sort = req.query.sort || 'date'; // по умолчанию сортировка по дате
+  const sortOrder = req.query.sortOrder || 'desc'; // по умолчанию по убыванию
+
+  let sqlQuery = '';
+  switch (sort) {
+    case 'date':
+      sqlQuery = `CALL get_reviews_ordered_by_date('${sortOrder}')`;
+      break;
+    case 'mark':
+      sqlQuery = `CALL get_reviews_ordered_by_mark('${sortOrder}')`;
+      break;
+    default:
+      sqlQuery = `CALL get_reviews()`;
+  }
+
   db.query(sqlQuery, (err, result) => {
     if (err) {
       res.status(500).json({ error: 'Ошибка' });

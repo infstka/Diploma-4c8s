@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,7 +54,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     });
   }
 
-  Future<void> _loadReviews() async {
+  Future<void> _loadReviews({String? sort, String? sortOrder}) async {
     // if (!UniversalPlatform.isWeb) {
     //   final reviews = await _loadReviewsFromLocalDB();
     //   setState(() {
@@ -61,7 +62,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     //   });
     // }
     try {
-      final reviews = await REST.getReviews();
+      final reviews = await REST.getReviews(sort: sort, sortOrder: sortOrder);
       setState(() {
         _reviews = reviews;
       });
@@ -217,6 +218,57 @@ class _ReviewScreenState extends State<ReviewScreen> {
       body: Column(
         children: [
           SizedBox(height: 16.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PopupMenuButton(
+                tooltip: "Сортировать",
+                icon: Icon(Icons.sort, color: Colors.black45,),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.star),
+                      title: Text('По оценке (возрастание)'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadReviews(sort: 'mark', sortOrder: 'asc');
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.star),
+                      title: Text('По оценке (убывание)'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadReviews(sort: 'mark', sortOrder: 'desc');
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.calendar_today),
+                      title: Text('По дате (возрастание)'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadReviews(sort: 'date', sortOrder: 'asc');
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      leading: Icon(Icons.calendar_today),
+                      title: Text('По дате (убывание)'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _loadReviews(sort: 'date', sortOrder: 'desc');
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: _reviews.length,
@@ -225,50 +277,57 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 final isUserReview = review['username'] == userName;
                 if (userType == "user") {
                   return ListTile(
-                      title: RichText(
-                        text: TextSpan(
-                          style: TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: ' ${review['username']} ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                    title: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: ' ${review['username']} ',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text:
-                                  '${DateFormat('dd.MM.yyyy HH:mm:ss').format(DateTime.parse(review['review_datetime']).add(Duration(hours: 3)))}\n',
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            WidgetSpan(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: List.generate(
-                                    review['review_mark'],
-                                    (index) => Icon(Icons.star_rate,
-                                        color: Colors.amber, size: 18)),
+                          ),
+                          TextSpan(
+                            text:
+                            '${DateFormat('dd.MM.yyyy HH:mm:ss').format(DateTime.parse(review['review_datetime']).add(Duration(hours: 3)))}\n',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          WidgetSpan(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(
+                                review['review_mark'],
+                                    (index) => Icon(
+                                  Icons.star_rate,
+                                  color: Colors.amber,
+                                  size: 18,
+                                ),
                               ),
                             ),
-                            TextSpan(
-                              text: '\n',
-                            ),
-                            TextSpan(
-                              text: ' ${review['review_comment']}\n',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
+                          ),
+                          TextSpan(
+                            text: '\n',
+                          ),
+                          TextSpan(
+                            text: ' ${review['review_comment']}\n',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
                       ),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         if (_reviewsFromREST == true)
                           Tooltip(
                             message: 'Обновить отзыв',
                             child: isUserReview
                                 ? IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () =>
-                                        _handleUpdateReview(review['id']),
-                                  )
+                              icon: Icon(Icons.edit),
+                              onPressed: () =>
+                                  _handleUpdateReview(review['id']),
+                            )
                                 : null,
                           ),
                         if (_reviewsFromREST == true)
@@ -276,69 +335,80 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             message: 'Удалить отзыв',
                             child: isUserReview
                                 ? IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () =>
-                                        _deleteReview(review['id']),
-                                  )
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _deleteReview(review['id']),
+                            )
                                 : null,
                           ),
-                      ]));
+                      ],
+                    ),
+                  );
                 } else if (userType != "user") {
                   return ListTile(
-                      title: RichText(
-                        text: TextSpan(
-                          style: TextStyle(color: Colors.black),
-                          children: [
-                            TextSpan(
-                              text: ' ${review['username']} ',
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold),
+                    title: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.black),
+                        children: [
+                          TextSpan(
+                            text: ' ${review['username']} ',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text:
-                                  '${DateFormat('dd.MM.yyyy HH:mm:ss').format(DateTime.parse(review['review_datetime']).add(Duration(hours: 3)))}\n',
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                            WidgetSpan(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: List.generate(
-                                    review['review_mark'],
-                                    (index) => Icon(Icons.star_rate,
-                                        color: Colors.amber, size: 18)),
+                          ),
+                          TextSpan(
+                            text:
+                            '${DateFormat('dd.MM.yyyy HH:mm:ss').format(DateTime.parse(review['review_datetime']).add(Duration(hours: 3)))}\n',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                          WidgetSpan(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: List.generate(
+                                review['review_mark'],
+                                    (index) => Icon(
+                                  Icons.star_rate,
+                                  color: Colors.amber,
+                                  size: 18,
+                                ),
                               ),
                             ),
-                            TextSpan(
-                              text: '\n',
-                            ),
-                            TextSpan(
-                              text: ' ${review['review_comment']}\n',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ],
-                        ),
+                          ),
+                          TextSpan(
+                            text: '\n',
+                          ),
+                          TextSpan(
+                            text: ' ${review['review_comment']}\n',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
                       ),
-                      trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         if (_reviewsFromREST == true)
                           Tooltip(
                             message: 'Обновить отзыв',
                             child: isUserReview
                                 ? IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () =>
-                                        _handleUpdateReview(review['id']),
-                                  )
+                              icon: Icon(Icons.edit),
+                              onPressed: () =>
+                                  _handleUpdateReview(review['id']),
+                            )
                                 : null,
                           ),
                         if (_reviewsFromREST == true)
                           Tooltip(
-                              message: 'Удалить отзыв',
-                              child: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () => _deleteReview(review['id']),
-                              )),
-                      ]));
+                            message: 'Удалить отзыв',
+                            child: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () => _deleteReview(review['id']),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
                 }
               },
             ),
@@ -366,7 +436,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           _isFormVisible
                               ? Icons.keyboard_arrow_down
                               : Icons.keyboard_arrow_up,
-                          size: 28.0, // Установите желаемый размер иконки здесь
+                          size: 28.0,
                         ),
                       ],
                     ),

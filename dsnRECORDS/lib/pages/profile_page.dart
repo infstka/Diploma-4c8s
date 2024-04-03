@@ -125,6 +125,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Text(
                   'Посмотреть бронирования',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            SizedBox(
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.width * 0.3
+                  : MediaQuery.of(context).size.width * 0.6,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: () {
+                  //Navigator.push(context,
+                      //MaterialPageRoute(builder: (_) => BookingsPage()));
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black,
+                ),
+                child: Text(
+                  'Просмотреть заявки на аренду',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
                   ),
