@@ -37,12 +37,24 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // Получить все бронирования для определенного пользователя
-router.get('/history/:id', (req, res) => {
+router.get('/history/bookings/:id', (req, res) => {
   const id = req.params.id;
   db.query(`CALL get_booking_history(?)`, 
            [id], (error, results, fields) => {
     if (error) throw error;
     res.send(results[0]);
+  });
+});
+
+// Получить все аренды для определенного пользователя
+router.get('/history/rentals/:id', (req, res) => {
+  const id = req.params.id;
+  db.query('CALL get_rentals_history(?)', [id], (error, results, fields) => {
+    if (error) {
+      res.status(500).json({ error: 'Ошибка сервера' });
+    } else {
+      res.status(200).json(results[0]);
+    }
   });
 });
 

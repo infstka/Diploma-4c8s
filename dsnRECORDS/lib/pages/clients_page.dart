@@ -7,6 +7,7 @@ import '../rest/rest_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 class ClientsScreen extends StatefulWidget {
   @override
@@ -16,6 +17,10 @@ class ClientsScreen extends StatefulWidget {
 class _ClientsScreenState extends State<ClientsScreen> {
   List<Map<String, dynamic>> clientData = [];
   String? userType;
+  bool _clientsFromREST = false;
+
+  final String clientsTable = 'clients';
+  final String defaultImagePath = 'assets/images/no_connection.png';
 
   @override
   void initState() {
@@ -37,10 +42,49 @@ class _ClientsScreenState extends State<ClientsScreen> {
       setState(() {
         clientData = List<Map<String, dynamic>>.from(clients);
       });
+      _saveClientsToLocalDB(clients);
+      _clientsFromREST = true;
     } catch (error) {
       print('Error fetching clients: $error');
-      throw Exception('Failed to load clients');
+      final clients = await _getClientsFromLocalDB();
+      print('Loading clients from local database...');
+      setState(() {
+        clientData = List<Map<String, dynamic>>.from(clients);
+      });
+      _clientsFromREST = false;
     }
+  }
+
+  Future<void> _saveClientsToLocalDB(List<dynamic> clients) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $clientsTable (id INTEGER PRIMARY KEY, client_name TEXT, client_image_path TEXT)');
+    await db.transaction((txn) async {
+      for (final client in clients) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $clientsTable (id, client_name, client_image_path) VALUES (?, ?, ?)',
+            [
+              client['id'],
+              client['client_name'],
+              defaultImagePath,
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getClientsFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $clientsTable (id INTEGER PRIMARY KEY, client_name TEXT, client_image_path TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $clientsTable');
+    return result.toList();
+  }
+
+  Future<void> _recreateClientsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $clientsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $clientsTable (id INTEGER PRIMARY KEY, client_name TEXT, client_image_path TEXT)');
   }
 
   File? _image;
@@ -139,6 +183,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Future<void> _deleteClient(int clientId) async {
     try {
       await REST.deleteClient(clientId);
+      _recreateClientsTable();
       await getClients();
     } catch (error) {
       print('Failed to delete client: $error');
@@ -233,7 +278,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
           if (index < clientData.length) {
             return GestureDetector(
               onTap: () {
-                if (userType == 'owner') {
+                if (_clientsFromREST == true && userType == 'owner') {
                   _showDeleteConfirmationDialog(clientData[index]['id']);
                 }
               },
@@ -251,9 +296,9 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(
-                                '${REST.BASE_URL}/${clientData[index]['client_image_path']}',
-                              ),
+                              image: _clientsFromREST
+                                  ? NetworkImage('${REST.BASE_URL}/${clientData[index]['client_image_path']}')
+                                  : AssetImage(clientData[index]['client_image_path']) as ImageProvider,
                               fit: BoxFit.fitWidth,
                             ),
                           ),
@@ -273,7 +318,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
               ),
             );
           } else {
-            if (userType == 'owner') {
+            if (_clientsFromREST == true && userType == 'owner') {
               return GestureDetector(
                 onTap: _addClient,
                 child: Card(

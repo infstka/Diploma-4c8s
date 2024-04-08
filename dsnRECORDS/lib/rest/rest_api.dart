@@ -111,9 +111,18 @@ class REST {
 
   static Future getUserBookings(int userID) async {
     final response =
-        await http.get(Uri.parse('$BASE_URL/profile/history/$userID'));
+        await http.get(Uri.parse('$BASE_URL/profile/history/bookings/$userID'));
     final data = jsonDecode(response.body);
     return data;
+  }
+
+  static Future<List<dynamic>> getUserRentals(int userId) async {
+    final response = await http.get(Uri.parse('$BASE_URL/profile/history/rentals/$userId'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load rentals by user ID');
+    }
   }
 
   static Future<List<TimeSlot>> fetchData(String data) async {
@@ -123,11 +132,12 @@ class REST {
   }
 
   static Future<void> updateTime(
-      int userId, String timeRange, String data) async {
+      int userId, String timeRange, String data, String category) async {
     Map<String, dynamic> body = {
       "user_id": userId,
       "timerange": timeRange,
       "data": data,
+      "category": category,
     };
     final encodeType = Encoding.getByName("UTF-8");
     var response = http.post(Uri.parse('$BASE_URL/booking/book'),
@@ -270,50 +280,6 @@ class REST {
     }
   }
 
-  // static Future addClient(String clientName, String imagePath) async {
-  //   var uri = Uri.parse('$BASE_URL/client/add');
-  //
-  //   //создание multipart/form-data запроса
-  //   var request = http.MultipartRequest('POST', uri)
-  //     ..fields['clientName'] = clientName
-  //     ..files.add(await http.MultipartFile.fromPath(
-  //         'clientImage', imagePath,
-  //         contentType: MediaType('image', 'jpg'))); // Предполагается, что изображение клиента находится по указанному пути
-  //
-  //   var response = await request.send();
-  //
-  //   if (response.statusCode == 201) {
-  //     return true;
-  //   } else {
-  //     throw Exception('Failed to add client');
-  //   }
-  // }
-
-  // static Future<void> updateClient(int clientId, String clientName, String imagePath) async {
-  //   var url = Uri.parse('$BASE_URL/client/$clientId');
-  //
-  //   try {
-  //     var request = http.MultipartRequest('PUT', url)
-  //       ..fields['clientName'] = clientName;
-  //
-  //     if (imagePath.isNotEmpty) {
-  //       request.files.add(await http.MultipartFile.fromPath(
-  //           'clientImage', imagePath,
-  //           contentType: MediaType('image', 'jpg')));
-  //     }
-  //
-  //     var response = await request.send();
-  //
-  //     if (response.statusCode == 200) {
-  //       return;
-  //     } else {
-  //       throw Exception('Failed to update client: ${response.statusCode}');
-  //     }
-  //   } catch (error) {
-  //     throw Exception('Failed to update client: $error');
-  //   }
-  // }
-
   static Future<void> deleteClient(int clientId) async {
     var url = Uri.parse('$BASE_URL/client/$clientId');
     try {
@@ -345,57 +311,6 @@ class REST {
       throw Exception('Failed to load prices');
     }
   }
-
-  // static Future<void> addEquipment(String equipmentName, String equipmentCategory, bool isRentable, String imagePath, int? priceId) async {
-  //   var uri = Uri.parse('$BASE_URL/equipment/add');
-  //
-  //   var request = http.MultipartRequest('POST', uri)
-  //     ..fields['equipmentName'] = equipmentName
-  //     ..fields['equipmentCategory'] = equipmentCategory
-  //     ..fields['isRentable'] = isRentable.toString();
-  //   if (isRentable) {
-  //     request.fields['priceId'] = priceId.toString();
-  //   }
-  //   request.files.add(await http.MultipartFile.fromPath(
-  //       'equipmentImage', imagePath,
-  //       contentType: MediaType('image', 'jpg')));
-  //
-  //   var response = await request.send();
-  //
-  //   if (response.statusCode == 201) {
-  //     return;
-  //   } else {
-  //     throw Exception('Failed to add equipment');
-  //   }
-  // }
-
-  // static Future<void> updateEquipment(int equipmentId, String equipmentName, String equipmentCategory, bool isRentable, String imagePath, int priceId) async {
-  //   var url = Uri.parse('$BASE_URL/equipment/$equipmentId');
-  //
-  //   try {
-  //     var request = http.MultipartRequest('PUT', url)
-  //       ..fields['equipmentName'] = equipmentName
-  //       ..fields['equipmentCategory'] = equipmentCategory
-  //       ..fields['isRentable'] = isRentable.toString()
-  //       ..fields['priceId'] = priceId.toString();
-  //
-  //     if (imagePath.isNotEmpty) {
-  //       request.files.add(await http.MultipartFile.fromPath(
-  //           'equipmentImage', imagePath,
-  //           contentType: MediaType('image', 'jpg')));
-  //     }
-  //
-  //     var response = await request.send();
-  //
-  //     if (response.statusCode == 200) {
-  //       return;
-  //     } else {
-  //       throw Exception('Failed to update equipment: ${response.statusCode}');
-  //     }
-  //   } catch (error) {
-  //     throw Exception('Failed to update equipment: $error');
-  //   }
-  // }
 
   static Future<void> deleteEquipment(int equipmentId) async {
     var url = Uri.parse('$BASE_URL/equipment/$equipmentId');
@@ -451,12 +366,62 @@ class REST {
     }
   }
 
-  static Future<List<dynamic>> getContactsByType(String contactType) async {
-    final response = await http.get(Uri.parse('$BASE_URL/contact/$contactType'));
+  static Future<List<dynamic>> getRentals() async {
+    final response = await http.get(Uri.parse('$BASE_URL/admin/rentals'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load contacts by type');
+      throw Exception('Failed to load rentals');
+    }
+  }
+
+  static Future<List<dynamic>> getAvailableEquipment(String startDate, String endDate) async {
+    final response = await http.get(Uri.parse('$BASE_URL/rental/availableEquipment/$startDate/$endDate'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load available equipment');
+    }
+  }
+
+  static Future<void> addRental(
+      String start_date, String end_date, String fullname, String phone, int user_id, List<int> eq_ids) async {
+    final response = await http.post(
+      Uri.parse('$BASE_URL/rental/add'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "start_date": start_date,
+        "end_date": end_date,
+        "fullname": fullname,
+        "phone": phone,
+        "user_id": user_id,
+        "eq_ids": eq_ids
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add rental');
+    }
+  }
+
+  static Future<void> deleteRental(int id) async {
+    final response = await http.delete(Uri.parse('$BASE_URL/rental/delete/$id'));
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete rental');
+    }
+  }
+
+  static Future restoreRental(int id) async {
+    final response = await http.delete(Uri.parse('$BASE_URL/rental/restore/$id'));
+    final data = jsonDecode(response.body);
+    return data;
+  }
+
+  static Future<List<dynamic>> getDeletedRentals() async {
+    final response = await http.get(Uri.parse('$BASE_URL/admin/rentals/deleted'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['bookings_archive'];
+    } else {
+      throw Exception('Failed to load deleted rentals');
     }
   }
 }

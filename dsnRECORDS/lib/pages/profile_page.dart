@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/login_page.dart';
 import 'package:dsn_records/pages/profile_update_page.dart';
 import 'package:dsn_records/pages/profile_history.dart';
+import 'package:dsn_records/pages/profile_rental_history.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -97,8 +98,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => UpdateProfilePage()));
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration.zero,
+                      pageBuilder: (_, __, ___) => UpdateProfilePage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,
@@ -117,8 +123,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => BookingsPage()));
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration.zero,
+                      pageBuilder: (_, __, ___) => BookingsPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,
@@ -140,8 +151,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
-                  //Navigator.push(context,
-                      //MaterialPageRoute(builder: (_) => BookingsPage()));
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      transitionDuration: Duration.zero,
+                      pageBuilder: (_, __, ___) => RentalsPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,

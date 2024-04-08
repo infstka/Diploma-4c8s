@@ -16,6 +16,9 @@ class _AdminScreenState extends State<AdminScreen> {
   List<dynamic> _blocked_users = [];
   List<dynamic> _bookings = [];
   List<dynamic> _bookings_archive = [];
+  List<dynamic> _rentals = [];
+  List<dynamic> _deleted_rentals = [];
+
   int? userID;
   String? userType;
 
@@ -23,6 +26,7 @@ class _AdminScreenState extends State<AdminScreen> {
   final String blockedUsersTable = 'blocked_users';
   final String bookingsTable = 'bookings';
   final String deletedBookingsTable = 'bookings_archive';
+  
   bool _dataFromREST = false;
 
   @override
@@ -34,6 +38,8 @@ class _AdminScreenState extends State<AdminScreen> {
     _getCurrentUser();
     _getBookings();
     _getDeletedBookings();
+    _getRentals();
+    _getDeletedRentals();
   }
 
   Future<void> _loadUserType() async {
@@ -97,6 +103,13 @@ class _AdminScreenState extends State<AdminScreen> {
     return result.toList();
   }
 
+  Future<void> _recreateUsersTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $usersTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $usersTable (id INTEGER PRIMARY KEY, username TEXT, user_email TEXT, user_type TEXT)');
+  }
+
   Future<void> _getBlockedUsers() async {
     // if (!UniversalPlatform.isWeb) {
     //   final blocked_users = await _getBlockedUsersFromLocalDB();
@@ -145,6 +158,13 @@ class _AdminScreenState extends State<AdminScreen> {
     return result.toList();
   }
 
+  Future<void> _recreateBlockedUsersTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $blockedUsersTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $blockedUsersTable (id INTEGER PRIMARY KEY, username TEXT, user_email TEXT, user_type TEXT)');
+  }
+
   void _getCurrentUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -160,6 +180,7 @@ class _AdminScreenState extends State<AdminScreen> {
         _getUsers();
         _getBookings();
         _getDeletedBookings();
+        _getRentals();
       });
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result['message'])));
@@ -174,10 +195,15 @@ class _AdminScreenState extends State<AdminScreen> {
     if (result['success']) {
       setState(() {
         _users.removeWhere((user) => user['id'] == id);
+        _recreateUsersTable();
+        _recreateBlockedUsersTable();
+        _recreateBookingsTable();
+        _recreateArchivedBookingsTable();
         _getUsers();
         _getBlockedUsers();
         _getBookings();
         _getDeletedBookings();
+        _getRentals();
       });
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result['message'])));
@@ -192,6 +218,8 @@ class _AdminScreenState extends State<AdminScreen> {
     if (result['success']) {
       setState(() {
         _blocked_users.removeWhere((user) => user['id'] == id);
+        _recreateUsersTable();
+        _recreateBlockedUsersTable();
         _getUsers();
         _getBlockedUsers();
       });
@@ -207,6 +235,7 @@ class _AdminScreenState extends State<AdminScreen> {
     final result = await REST.setAdmin(id);
     if (result['success']) {
       setState(() {
+        _recreateUsersTable();
         _getUsers();
       });
       ScaffoldMessenger.of(context)
@@ -221,6 +250,7 @@ class _AdminScreenState extends State<AdminScreen> {
     final result = await REST.setUser(id);
     if (result['success']) {
       setState(() {
+        _recreateUsersTable();
         _getUsers();
       });
       ScaffoldMessenger.of(context)
@@ -266,16 +296,17 @@ class _AdminScreenState extends State<AdminScreen> {
     final db = await sqflite.openDatabase('localDB.db');
     await db.execute('DROP TABLE IF EXISTS $bookingsTable');
     await db.execute(
-        'CREATE TABLE IF NOT EXISTS $bookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT)');
+        'CREATE TABLE IF NOT EXISTS $bookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT, category TEXT)');
     await db.transaction((txn) async {
       for (final booking in bookings) {
         await txn.rawInsert(
-            'INSERT OR REPLACE INTO $bookingsTable (id, username, data, timerange) VALUES (?, ?, ?, ?)',
+            'INSERT OR REPLACE INTO $bookingsTable (id, username, data, timerange, category) VALUES (?, ?, ?, ?, ?)',
             [
               booking['id'],
               booking['username'],
               booking['data'],
-              booking['timerange']
+              booking['timerange'],
+              booking['category']
             ]);
       }
     });
@@ -285,6 +316,13 @@ class _AdminScreenState extends State<AdminScreen> {
     final db = await sqflite.openDatabase('localDB.db');
     final result = await db.rawQuery('SELECT * FROM $bookingsTable');
     return result.toList();
+  }
+
+  Future<void> _recreateBookingsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $bookingsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $bookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT, category TEXT)');
   }
 
   bool _isDeletable(String bookingDate) {
@@ -315,6 +353,8 @@ class _AdminScreenState extends State<AdminScreen> {
                 setState(() {
                   _bookings.removeAt(index);
                 });
+                _recreateBookingsTable();
+                _recreateArchivedBookingsTable();
                 _getDeletedBookings();
                 _getBookings();
                 Navigator.of(context).pop();
@@ -362,16 +402,17 @@ class _AdminScreenState extends State<AdminScreen> {
     final db = await sqflite.openDatabase('localDB.db');
     await db.execute('DROP TABLE IF EXISTS $deletedBookingsTable');
     await db.execute(
-        'CREATE TABLE IF NOT EXISTS $deletedBookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT)');
+        'CREATE TABLE IF NOT EXISTS $deletedBookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT, category TEXT)');
     await db.transaction((txn) async {
       for (final booking_archive in bookings_archive) {
         await txn.rawInsert(
-            'INSERT OR REPLACE INTO $deletedBookingsTable (id, username, data, timerange) VALUES (?, ?, ?, ?)',
+            'INSERT OR REPLACE INTO $deletedBookingsTable (id, username, data, timerange, category) VALUES (?, ?, ?, ?, ?)',
             [
               booking_archive['id'],
               booking_archive['username'],
               booking_archive['data'],
-              booking_archive['timerange']
+              booking_archive['timerange'],
+              booking_archive['category']
             ]);
       }
     });
@@ -381,6 +422,13 @@ class _AdminScreenState extends State<AdminScreen> {
     final db = await sqflite.openDatabase('localDB.db');
     final result = await db.rawQuery('SELECT * FROM $deletedBookingsTable');
     return result.toList();
+  }
+
+  Future<void> _recreateArchivedBookingsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $deletedBookingsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $deletedBookingsTable (id INTEGER PRIMARY KEY, username TEXT, data TEXT, timerange TEXT, category TEXT)');
   }
 
   void _restoreBooking(dynamic booking_archive) {
@@ -406,6 +454,8 @@ class _AdminScreenState extends State<AdminScreen> {
                 setState(() {
                   _bookings_archive.removeAt(index);
                 });
+                _recreateBookingsTable();
+                _recreateArchivedBookingsTable();
                 _getBookings();
                 _getDeletedBookings();
                 Navigator.of(context).pop();
@@ -417,13 +467,133 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
+  Future<void> _getRentals() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    try {
+      final rentals = await REST.getRentals();
+      final filteredRentals = rentals.where((rental) {
+        final parsedStartDate =
+            DateFormat('dd.MM.yyyy').parse(rental['start_date']);
+        return parsedStartDate.isAfter(today) ||
+            parsedStartDate.isAtSameMomentAs(today);
+      }).toList();
+      setState(() {
+        _rentals = filteredRentals;
+      });
+    } catch (e) {
+      print('Failed to load rentals from REST API: $e');
+    }
+  }
+
+  void _deleteRental(int rentalId) async {
+    try {
+      await REST.deleteRental(rentalId);
+      setState(() {
+        _rentals.removeWhere((rental) => rental['id'] == rentalId);
+      });
+      _getDeletedRentals();
+      _getRentals();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Заявка на аренду успешно удалена')),
+      );
+    } catch (e) {
+      print('Failed to delete rental: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка удаления заявки на аренду')),
+      );
+    }
+  }
+
+  void _showRentalDetailsDialog(Map<String, dynamic> rentals) {
+    List<String> equipmentNames = (rentals['eq_names'] as String).split(', ');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Детали заявки №${rentals['id']}'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('ФИО: ${rentals['fullname']}'),
+              Text('Телефон: ${rentals['phone']}'),
+              Text('Дата начала: ${rentals['start_date']}'),
+              Text('Дата конца: ${rentals['end_date']}'),
+              Text('Оборудование:'),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: equipmentNames.map<Widget>((eqName) {
+                  return Text('- $eqName');
+                }).toList(),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Закрыть'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _getDeletedRentals() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    try {
+      final deletedRentals = await REST.getDeletedRentals();
+      final filteredRentals = deletedRentals.where((rental) {
+        final parsedStartDate =
+        DateFormat('dd.MM.yyyy').parse(rental['start_date']);
+        return parsedStartDate.isAfter(today) ||
+            parsedStartDate.isAtSameMomentAs(today);
+      }).toList();
+      setState(() {
+        _deleted_rentals = filteredRentals;
+      });
+    } catch (e) {
+      print('Failed to load deleted rentals from REST API: $e');
+    }
+  }
+
+  void _restoreRental(int rentalId) async {
+    try {
+      final result = await REST.restoreRental(rentalId);
+      if (result != null) {
+        setState(() {
+          _deleted_rentals.removeWhere((rental) => rental['id'] == rentalId);
+        });
+        _getDeletedRentals();
+        _getRentals();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Заявка на аренду успешно восстановлена')),
+        );
+        _getRentals();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка восстановления заявки на аренду')),
+        );
+      }
+    } catch (e) {
+      print('Failed to restore rental: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка восстановления заявки на аренду')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _users.isEmpty
           ? Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: 4, // количество папок
+              itemCount: 6,
               itemBuilder: (context, index) {
                 if (index == 0) {
                   if (userType == "owner") {
@@ -573,7 +743,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       return ListTile(
                         title: Text('Пользователь: ${booking['username']}'),
                         subtitle: Text(
-                            'Дата: ${booking['data']} \nВремя: ${booking['timerange']}'),
+                            '${booking['category']} \nДата: ${booking['data']} \nВремя: ${booking['timerange']}'),
                         trailing: _dataFromREST == true &&
                                 _isDeletable(booking['data'])
                             ? Tooltip(
@@ -595,7 +765,7 @@ class _AdminScreenState extends State<AdminScreen> {
                         title: Text(
                             'Пользователь: ${booking_archive['username']}'),
                         subtitle: Text(
-                            'Дата: ${booking_archive['data']} \nВремя: ${booking_archive['timerange']}'),
+                            '${booking_archive['category']} \nДата: ${booking_archive['data']} \nВремя: ${booking_archive['timerange']}'),
                         trailing: _dataFromREST == true &&
                                 _isDeletable(booking_archive['data'])
                             ? Tooltip(
@@ -610,11 +780,59 @@ class _AdminScreenState extends State<AdminScreen> {
                       );
                     }).toList(),
                   );
+                } else if (index == 4) {
+                  return ExpansionTile(
+                    title: Text('Актуальные заявки на аренду'),
+                    children: _rentals.map((rentals) {
+                      return InkWell(
+                        onTap: () {
+                          _showRentalDetailsDialog(rentals);
+                        },
+                        child: ListTile(
+                          title: Text('Заявка №${rentals['id']}'),
+                          trailing: _dataFromREST == true
+                              ? Tooltip(
+                                  message: 'Отменить заявку',
+                                  child: IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () =>
+                                        _deleteRental(rentals['id']),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      );
+                    }).toList(),
+                  );
+                } else if (index == 5) {
+                  return ExpansionTile(
+                    title: Text('Отмененные заявки на аренду'), // New title
+                    children: _deleted_rentals.map((rental) {
+                      return InkWell(
+                        onTap: () {
+                          _showRentalDetailsDialog(rental);
+                        },
+                        child: ListTile(
+                          title: Text('Заявка №${rental['id']}'),
+                          trailing: _dataFromREST == true
+                              ? Tooltip(
+                            message: 'Восстановить заявку', // Updated tooltip
+                            child: IconButton(
+                              icon: Icon(Icons.restore),
+                              onPressed: () =>
+                                  _restoreRental(rental['id']), // New method
+                            ),
+                          )
+                              : null,
+                        ),
+                      );
+                    }).toList(),
+                  );
                 } else {
                   return Container();
                 }
               },
-            ),
+      ),
     );
   }
 }

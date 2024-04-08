@@ -16,8 +16,9 @@ router.post("/book", (req,res) => {
     const user_id = req.body.user_id;
     const timerange = req.body.timerange;
     const data = req.body.data;
-    
-    db.query("CALL book_time(?, ?, ?)", [user_id, timerange, data], (error,results,fields) => {
+    const category = req.body.category;
+
+    db.query("CALL book_time(?, ?, ?, ?)", [user_id, timerange, data, category], (error,results,fields) => {
         if(error) throw error;
         res.send({error:false, data:results, message: "Updated"})  
     });

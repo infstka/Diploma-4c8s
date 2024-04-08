@@ -4,23 +4,13 @@ const db = require('./database.js');
 
 // Получить все контакты
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM contacts', (error, results, fields) => {
+  const query = 'CALL get_contacts()';
+  
+  db.query(query, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
-      res.status(200).json(results);
-    }
-  });
-});
-
-// Получить контакты по типу
-router.get('/:type', (req, res) => {
-  const type = req.params.type;
-  db.query('SELECT * FROM contacts WHERE contact_type = ?', [type], (error, results, fields) => {
-    if (error) {
-      res.status(500).json({ error: 'Ошибка сервера' });
-    } else {
-      res.status(200).json(results);
+      res.status(200).json(results[0]);
     }
   });
 });
@@ -28,7 +18,11 @@ router.get('/:type', (req, res) => {
 // Добавить новый контакт
 router.post('/add', (req, res) => {
   const { contact, contact_type } = req.body;
-  db.query('INSERT INTO contacts (contact, contact_type) VALUES (?, ?)', [contact, contact_type], (error, results, fields) => {
+  
+  const query = 'CALL new_contact(?, ?)';
+  const values = [contact, contact_type];
+  
+  db.query(query, values, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
@@ -41,7 +35,11 @@ router.post('/add', (req, res) => {
 router.put('/update/:id', (req, res) => {
   const id = req.params.id;
   const { contact } = req.body;
-  db.query('UPDATE contacts SET contact = ? WHERE id = ?', [contact, id], (error, results, fields) => {
+  
+  const query = 'CALL update_contact(?, ?)';
+  const values = [contact, id];
+  
+  db.query(query, values, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
@@ -53,7 +51,11 @@ router.put('/update/:id', (req, res) => {
 // Удалить контакт по идентификатору
 router.delete('/delete/:id', (req, res) => {
   const id = req.params.id;
-  db.query('DELETE FROM contacts WHERE id = ?', [id], (error, results, fields) => {
+  
+  const query = 'CALL delete_contact(?)';
+  const values = [id];
+  
+  db.query(query, values, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {

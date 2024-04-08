@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 class EquipmentScreen extends StatefulWidget {
   @override
@@ -16,6 +17,11 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
   List<Map<String, dynamic>> equipmentData = [];
   String _selectedCategory = '';
   String? userType;
+
+  bool _equipmentFromREST = false;
+
+  final String equipmentTable = 'equipment';
+  final String defaultImagePath = 'assets/images/no_connection.png';
 
   @override
   void initState() {
@@ -38,9 +44,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
       setState(() {
         equipmentData = equipment.map((eq) {
           final Map<String, dynamic> equipmentMap =
-              Map<String, dynamic>.from(eq);
+          Map<String, dynamic>.from(eq);
           final price = prices.firstWhere(
-              (price) => price['id'] == equipmentMap['price_id'],
+                  (price) => price['id'] == equipmentMap['price_id'],
               orElse: () => null);
           equipmentMap['price'] = price != null ? price['price'] : null;
           equipmentMap['service'] = price != null ? price['service'] : null;
@@ -50,14 +56,60 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           _selectedCategory = equipmentData.first['eq_category'];
         }
       });
+      _saveEquipmentToLocalDB(equipment, prices);
+      _equipmentFromREST = true;
     } catch (error) {
       print('Error fetching equipment: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to fetch equipment data'),
-        ),
-      );
+      final equipment = await _getEquipmentFromLocalDB();
+      print('Loading equipment from local database...');
+      setState(() {
+        equipmentData = List<Map<String, dynamic>>.from(equipment);
+      });
+      _equipmentFromREST = false;
     }
+  }
+
+  Future<void> _saveEquipmentToLocalDB(List<dynamic> equipment, List<dynamic> prices) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $equipmentTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $equipmentTable (id INTEGER PRIMARY KEY, eq_name TEXT, eq_category TEXT, eq_image_path TEXT, is_rentable INTEGER, price TEXT)'
+    );
+    await db.transaction((txn) async {
+      for (final eq in equipment) {
+        final priceId = eq['price_id'];
+        final priceData = prices.firstWhere((price) => price['id'] == priceId, orElse: () => null);
+        final price = priceData != null ? priceData['price'] : null;
+        await txn.rawInsert(
+          'INSERT OR REPLACE INTO $equipmentTable (id, eq_name, eq_category, eq_image_path, is_rentable, price) VALUES (?, ?, ?, ?, ?, ?)',
+          [
+            eq['id'],
+            eq['eq_name'],
+            eq['eq_category'],
+            defaultImagePath,
+            eq['is_rentable'] == 1 ? true : false,
+            price,
+          ],
+        );
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getEquipmentFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS $equipmentTable (id INTEGER PRIMARY KEY, eq_name TEXT, eq_category TEXT, eq_image_path TEXT, is_rentable INTEGER, price TEXT)',
+    );
+    final result = await db.rawQuery('SELECT * FROM $equipmentTable');
+    return result.toList();
+  }
+
+  Future<void> _recreateEquipmentTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $equipmentTable');
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS $equipmentTable (id INTEGER PRIMARY KEY, eq_name TEXT, eq_category TEXT, eq_image_path TEXT, is_rentable INTEGER, price TEXT)',
+    );
   }
 
   File? _image;
@@ -104,7 +156,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                     ElevatedButton(
                       onPressed: () async {
                         final pickedFile =
-                            await picker.pickImage(source: ImageSource.gallery);
+                        await picker.pickImage(source: ImageSource.gallery);
                         if (pickedFile != null) {
                           final imageBytes = await pickedFile.readAsBytes();
 
@@ -145,7 +197,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                             return Text('Error: ${snapshot.error}');
                           } else {
                             final List<dynamic> prices =
-                                snapshot.data as List<dynamic>;
+                            snapshot.data as List<dynamic>;
                             return DropdownButton<int>(
                               hint: Text('Выберите цену'),
                               value: _selectedPriceId,
@@ -161,7 +213,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                     '${price['service']} - ${price['price']}',
                                     style: TextStyle(
                                         fontSize:
-                                            14), // Adjust the font size here
+                                        14), // Adjust the font size here
                                   ),
                                 );
                               }).toList(),
@@ -202,7 +254,10 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                         request.files.add(http.MultipartFile.fromBytes(
                           'equipmentImage',
                           _imageBytes!,
-                          filename: _image!.path.split('/').last,
+                          filename: _image!
+                              .path
+                              .split('/')
+                              .last,
                           contentType: MediaType('image', 'jpg'),
                         ));
 
@@ -261,6 +316,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
               onPressed: () async {
                 try {
                   await REST.deleteEquipment(equipmentId);
+                  _recreateEquipmentTable();
                   await fetchEquipment();
                 } catch (error) {
                   print('Error deleting equipment: $error');
@@ -281,23 +337,43 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     final List<String> categories = ['Репетиции', 'Звукозапись', 'Аренда'];
 
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
-            MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0),
+            MediaQuery
+                .of(context)
+                .size
+                .width > 600 ? 100.0 : 56.0),
         child: AppBar(
           backgroundColor: Colors.black,
           flexibleSpace: Container(
-            width: MediaQuery.of(context).size.width > 600
-                ? MediaQuery.of(context).size.width * 0.5
-                : MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height > 600
-                ? MediaQuery.of(context).size.height * 0.7
-                : MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width > 600
+                ? MediaQuery
+                .of(context)
+                .size
+                .width * 0.5
+                : MediaQuery
+                .of(context)
+                .size
+                .width * 0.8,
+            height: MediaQuery
+                .of(context)
+                .size
+                .height > 600
+                ? MediaQuery
+                .of(context)
+                .size
+                .height * 0.7
+                : MediaQuery
+                .of(context)
+                .size
+                .height * 0.5,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/text black.png'),
@@ -332,6 +408,12 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           final categoryEquipment = equipmentData
               .where((equipment) => equipment['eq_category'] == category)
               .toList();
+
+          // Добавляем карточку для добавления оборудования, если в категории нет оборудования
+          if (categoryEquipment.isEmpty) {
+            return _buildAddEquipmentCard(category);
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -345,105 +427,155 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                   ),
                 ),
               ),
-              if (categoryEquipment.isNotEmpty) // Добавлено условие здесь
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: MediaQuery.of(context).size.width > 1200
-                        ? 5
-                        : MediaQuery.of(context).size.width > 800
-                        ? 4
-                        : MediaQuery.of(context).size.width > 600
-                        ? 3
-                        : 1,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 0.8,
-                  ),
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount:
-                  categoryEquipment.length + (userType == 'owner' ? 1 : 0),
-                  itemBuilder: (BuildContext context, int index) {
-                    if (index < categoryEquipment.length) {
-                      final equipment = categoryEquipment[index];
-                      return GestureDetector(
-                        onTap: () {
-                          if (userType == 'owner') {
-                            _showDeleteConfirmationDialog(equipment['id']);
-                          }
-                        },
-                        child: Card(
-                          color: Colors.black,
-                          child: SizedBox(
-                            height: 200,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                AspectRatio(
-                                  aspectRatio: 1.5,
-                                  child: Image.network(
-                                    '${REST.BASE_URL}/${equipment['eq_image_path']}',
-                                    fit: BoxFit.cover,
-                                  ),
+              GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MediaQuery
+                      .of(context)
+                      .size
+                      .width > 1200
+                      ? 5
+                      : MediaQuery
+                      .of(context)
+                      .size
+                      .width > 800
+                      ? 4
+                      : MediaQuery
+                      .of(context)
+                      .size
+                      .width > 600
+                      ? 3
+                      : 1,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  childAspectRatio: 0.8,
+                ),
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount:
+                categoryEquipment.length + (_equipmentFromREST == true && userType == 'owner' ? 1 : 0),
+                itemBuilder: (BuildContext context, int index) {
+                  if (index < categoryEquipment.length) {
+                    final equipment = categoryEquipment[index];
+                    return GestureDetector(
+                      onTap: () {
+                        if (_equipmentFromREST == true && userType == 'owner') {
+                          _showDeleteConfirmationDialog(equipment['id']);
+                        }
+                      },
+                      child: Card(
+                        color: Colors.black,
+                        child: SizedBox(
+                          height: 200,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 1.5,
+                                child: _equipmentFromREST
+                                    ? Image.network(
+                                  '${REST.BASE_URL}/${equipment['eq_image_path']}',
+                                  fit: BoxFit.cover,
+                                )
+                                    : Image.asset(
+                                  equipment['eq_image_path'],
+                                  fit: BoxFit.cover,
                                 ),
-                                SizedBox(height: 8.0),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text(
+                                equipment['eq_name'],
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              SizedBox(height: 4.0),
+                              if (equipment['is_rentable'] == 1)
                                 Text(
-                                  equipment['eq_name'],
+                                  'Доступно для аренды',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
+                                    fontSize: 14.0,
                                   ),
                                 ),
-                                SizedBox(height: 4.0),
-                                if (equipment['is_rentable'] == 1)
-                                  Text(
-                                    'Доступно для аренды',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14.0,
-                                    ),
+                              if (equipment['is_rentable'] == 1)
+                                Text(
+                                  'Цена: ${equipment['price']}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.0,
                                   ),
-                                if (equipment['is_rentable'] == 1)
-                                  Text(
-                                    'Цена: ${equipment['price']}',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14.0,
-                                    ),
-                                  ),
-                              ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else {
+                    if (userType == 'owner') {
+                      return GestureDetector(
+                        onTap: () {
+                          _addEquipment(category);
+                        },
+                        child: Card(
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: Icon(
+                              Icons.add,
+                              size: 40.0,
+                              color: Colors.black,
                             ),
                           ),
                         ),
                       );
                     } else {
-                      if (userType == 'owner') {
-                        return GestureDetector(
-                          onTap: () {
-                            _addEquipment(category);
-                          },
-                          child: Card(
-                            color: Colors.grey[300],
-                            child: Center(
-                              child: Icon(
-                                Icons.add,
-                                size: 40.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return SizedBox();
-                      }
+                      return SizedBox();
                     }
-                  },
-                ),
+                  }
+                },
+              ),
             ],
           );
         },
       ),
     );
+  }
+
+  Widget _buildAddEquipmentCard(String category) {
+    if (userType == 'owner') {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              category,
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              _addEquipment(category);
+            },
+            child: Card(
+              color: Colors.grey[300],
+              child: Center(
+                child: Icon(
+                  Icons.add,
+                  size: 40.0,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }

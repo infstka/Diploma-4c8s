@@ -51,7 +51,8 @@ class DatabaseProvider {
               "username TEXT,"
               "data TEXT,"
               "timerange TEXT,"
-              "status INT"
+              "status INT,"
+              "category TEXT"
               ")"
       );
       await db.execute(
@@ -59,7 +60,8 @@ class DatabaseProvider {
               "id INTEGER PRIMARY KEY,"
               "username TEXT,"
               "data TEXT,"
-              "timerange TEXT"
+              "timerange TEXT,"
+              "category TEXT"
               ")"
       );
     });

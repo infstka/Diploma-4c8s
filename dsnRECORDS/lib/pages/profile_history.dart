@@ -34,7 +34,7 @@ class _BookingsPageState extends State<BookingsPage> {
         _bookings = bookings.map((booking) {
           return {
             ...booking,
-            'data': '${booking['data']}', // format data as string
+            'data': '${booking['data']}',
           };
         }).toList();
       });
@@ -47,7 +47,7 @@ class _BookingsPageState extends State<BookingsPage> {
         _bookings = bookings.map((booking) {
           return {
             ...booking,
-            'data': '${booking['data']}', // format data as string
+            'data': '${booking['data']}',
           };
         }).toList();
       });
@@ -56,10 +56,11 @@ class _BookingsPageState extends State<BookingsPage> {
 
   Future<void> _saveUserBookingsToLocalDB(int userID, List<dynamic> bookings) async {
     final db = await sqflite.openDatabase('localDB.db');
-    await db.execute('CREATE TABLE IF NOT EXISTS $userBookingsTable (id INTEGER PRIMARY KEY, user_id INTEGER, data TEXT, timerange TEXT)');
+    await db.execute(''
+        'CREATE TABLE IF NOT EXISTS $userBookingsTable (id INTEGER PRIMARY KEY, user_id INTEGER, data TEXT, timerange TEXT, category TEXT)');
     await db.transaction((txn) async {
       for (final booking in bookings) {
-        await txn.rawInsert('INSERT OR REPLACE INTO $userBookingsTable (id, user_id, data, timerange) VALUES (?, ?, ?, ?)', [booking['id'], userID, booking['data'], booking['timerange']]);
+        await txn.rawInsert('INSERT OR REPLACE INTO $userBookingsTable (id, user_id, data, timerange, category) VALUES (?, ?, ?, ?, ?)', [booking['id'], userID, booking['data'], booking['timerange'], booking['category']]);
       }
     });
   }
@@ -68,6 +69,17 @@ class _BookingsPageState extends State<BookingsPage> {
     final db = await sqflite.openDatabase('localDB.db');
     final result = await db.rawQuery('SELECT * FROM $userBookingsTable WHERE user_id = ?', [userID]);
     return result.toList();
+  }
+
+  Future<void> _recreateUserBookingsTable() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userID = prefs.getInt('id');
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $userBookingsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $userBookingsTable (id INTEGER PRIMARY KEY, user_id INTEGER, data TEXT, timerange TEXT, category TEXT)');
+
+    await _getUserBookings(userID!);
   }
 
   void _deleteBooking(int index) {
@@ -92,6 +104,7 @@ class _BookingsPageState extends State<BookingsPage> {
                 setState(() {
                   _bookings.removeAt(index);
                 });
+                _recreateUserBookingsTable();
                 Navigator.of(context).pop();
               },
             ),
@@ -110,20 +123,49 @@ class _BookingsPageState extends State<BookingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(
+          MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0,
+        ),
+        child: AppBar(
+          backgroundColor: Colors.black,
+          flexibleSpace: Container(
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height > 600
+                ? MediaQuery.of(context).size.height * 0.7
+                : MediaQuery.of(context).size.height * 0.5,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/text black.png'),
+                fit: BoxFit.contain,
+              ),
+            ),
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 20.0),
+            child: InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              customBorder: CircleBorder(),
+              child: SizedBox(
+                width: 25.0,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          automaticallyImplyLeading: false,
+        ),
+      ),
       body: Column(
         children: <Widget>[
           SizedBox(height: 16.0),
-          Container(
-            margin: EdgeInsets.all(16.0),
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: _bookings.isEmpty
                   ? Center(child: Text('Забронированное время не найдено'))
@@ -132,8 +174,8 @@ class _BookingsPageState extends State<BookingsPage> {
               itemBuilder: (context, index) {
                 final booking = _bookings[index];
                 return ListTile(
-                  title: Text('Дата: ${booking['data']}'),
-                  subtitle: Text('Время: ${booking['timerange']}'),
+                  title: Text('${booking['category']}'),
+                  subtitle: Text('Дата: ${booking['data']} \nВремя: ${booking['timerange']}'),
                   trailing: _dataFromREST == true && _isDeletable(booking['data'])
                       ? IconButton(
                     icon: Icon(Icons.delete),

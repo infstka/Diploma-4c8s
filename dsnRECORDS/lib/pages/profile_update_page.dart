@@ -79,6 +79,46 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(
+          MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0,
+        ),
+        child: AppBar(
+          backgroundColor: Colors.black,
+          flexibleSpace: Container(
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height > 600
+                ? MediaQuery.of(context).size.height * 0.7
+                : MediaQuery.of(context).size.height * 0.5,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/text black.png'),
+                fit: BoxFit.contain,
+              ),
+            ),
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.only(left: 20.0),
+            child: InkWell(
+              onTap: () => Navigator.of(context).pop(),
+              customBorder: CircleBorder(),
+              child: SizedBox(
+                width: 25.0,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          automaticallyImplyLeading: false,
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -86,17 +126,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
               SizedBox(height: 16.0),
               Row(
                   mainAxisAlignment: MainAxisAlignment.center,

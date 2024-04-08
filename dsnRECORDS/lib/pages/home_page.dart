@@ -11,7 +11,6 @@ import 'package:dsn_records/pages/profile_page.dart';
 import 'package:dsn_records/pages/review_page.dart';
 import 'package:dsn_records/pages/about_page.dart';
 import 'package:dsn_records/pages/admin_page.dart';
-import 'package:dsn_records/pages/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -43,8 +42,8 @@ class HomePageState extends State<HomePage> {
   }
 
   void onTabTapped(int index) async {
-    // если нажата вторая вкладка (SchedulePage)
-    if (!UniversalPlatform.isWeb && index == 1) {
+    // если нажата вторая вкладка (SchedulePage) или третья вкладка (RentalScreen)
+    if (!UniversalPlatform.isWeb && (index == 1 || index == 2)) {
       bool isConnected = await checkConnection();
       if (!isConnected) {
         // если связи нет, отображаем диалоговое окно с сообщением об ошибке
@@ -144,10 +143,6 @@ class HomePageState extends State<HomePage> {
             icon: Icon(Icons.admin_panel_settings),
             label: 'Админ-панель',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.settings), // Иконка для вкладки "Настройки"
-          //   label: 'Настройки',
-          // ),
         ] : [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -173,10 +168,6 @@ class HomePageState extends State<HomePage> {
             icon: Icon(Icons.info_outline),
             label: 'О студии',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.settings), // Иконка для вкладки "Настройки"
-          //   label: 'Настройки',
-          // ),
         ],
       ),
     );

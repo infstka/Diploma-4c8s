@@ -10,7 +10,6 @@ app.use(express.json());
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Обслуживание статических файлов из директории 'files'
 app.use('/files', express.static('files'));
 
 const userRouter = require('./user');
@@ -39,6 +38,9 @@ app.use('/equipment', equipmentRouter);
 
 const contactRouter = require('./contact');
 app.use('/contact', contactRouter);
+
+const rentalRouter = require('./rental');
+app.use('/rental', rentalRouter);
 
 //сервирование статических файлов из папки build/web
 app.use(express.static('build/web'));

@@ -115,4 +115,29 @@ router.get('/bookings/deleted', (req, res) => {
   });
 });
 
+// Получить все заявки на аренду
+router.get('/rentals', (req, res) => {
+  const query = 'CALL get_rentals()'; 
+  
+  db.query(query, (error, results, fields) => {
+    if (error) {
+      res.status(500).json({ error: 'Ошибка сервера' });
+    } else {
+      res.status(200).json(results[0]);
+    }
+  });
+});
+
+// Получить все отмененные заявки на аренду
+router.get('/rentals/deleted', (req, res) => {
+  const sqlQuery = "CALL get_archived_rentals()";
+  db.query(sqlQuery, (err, result) => {
+    if (err) {
+      res.send(JSON.stringify({success: false, message: err}));
+    } else {
+      res.send(JSON.stringify({success: true, bookings_archive: result[0]}));
+    }
+  });
+});
+
 module.exports = router;

@@ -19,11 +19,13 @@ const upload = multer({ storage: storage });
 
 // Получить всех клиентов
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM clients', (error, results, fields) => {
+  const query = 'CALL get_clients()';
+  
+  db.query(query, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
-      res.status(200).json(results);
+      res.status(200).json(results[0]);
     }
   });
 });
@@ -32,7 +34,11 @@ router.get('/', (req, res) => {
 router.post('/add', upload.single('clientImage'), (req, res) => {
   const clientName = req.body.clientName;
   const clientImagePath = req.file.path.replace(/\\/g, '/');
-  db.query('INSERT INTO clients (client_name, client_image_path) VALUES (?, ?)', [clientName, clientImagePath], (error, results, fields) => {
+  
+  const query = 'CALL new_client(?, ?)';
+  const values = [clientName, clientImagePath];
+  
+  db.query(query, values, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
@@ -44,23 +50,23 @@ router.post('/add', upload.single('clientImage'), (req, res) => {
 // Удалить клиента
 router.delete('/:clientId', (req, res) => {
   const clientId = req.params.clientId;
-  db.query('SELECT client_image_path FROM clients WHERE id = ?', [clientId], (error, results, fields) => {
+  
+  const query = 'CALL delete_client(?)';
+  const values = [clientId];
+  
+  db.query(query, values, (error, results, fields) => {
     if (error) {
       res.status(500).json({ error: 'Ошибка сервера' });
     } else {
-      const imagePath = results[0].client_image_path;
-      db.query('DELETE FROM clients WHERE id = ?', [clientId], (error, results, fields) => {
+      const imagePath = results[0][0].client_image_path; // Получаем путь к изображению клиента из результатов процедуры
+      
+      fs.unlink(path.join(__dirname, imagePath), (error) => {
         if (error) {
-          res.status(500).json({ error: 'Ошибка сервера' });
-        } else {
-          fs.unlink(path.join(__dirname, imagePath), (error) => {
-            if (error) {
-              console.log('Ошибка удаления файла изображения:', error);
-            }
-          });
-          res.status(200).json({ message: 'Клиент успешно удален' });
+          console.log('Ошибка удаления файла изображения:', error);
         }
       });
+      
+      res.status(200).json({ message: 'Клиент успешно удален' });
     }
   });
 });

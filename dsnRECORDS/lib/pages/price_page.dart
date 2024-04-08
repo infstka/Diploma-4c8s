@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -11,6 +12,9 @@ class _PriceScreenState extends State<PriceScreen> {
   List<dynamic> services = [];
   List<String> categories = ['Репетиции', 'Звукозапись', 'Аренда'];
   String? userType;
+
+  final String pricesTable = 'prices';
+  bool _pricesFromREST = false;
 
   @override
   void initState() {
@@ -36,9 +40,50 @@ class _PriceScreenState extends State<PriceScreen> {
       setState(() {
         services = updatedServices;
       });
+      _saveServicesToLocalDB(updatedServices);
+      _pricesFromREST = true;
     } catch (error) {
-      print('Error fetching services: $error');
+      print('Error fetching prices: $error');
+      final services = await _getServicesFromLocalDB();
+      print('Loading prices from local database...');
+      setState(() {
+        this.services = services;
+      });
+      _pricesFromREST = false;
     }
+  }
+
+  Future<void> _saveServicesToLocalDB(List<dynamic> prices) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $pricesTable (id INTEGER PRIMARY KEY, service TEXT, price TEXT, category TEXT)');
+    await db.transaction((txn) async {
+      for (final price in prices) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $pricesTable (id, service, price, category) VALUES (?, ?, ?, ?)',
+            [
+              price['id'],
+              price['service'],
+              price['price'],
+              price['category'],
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getServicesFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $pricesTable (id INTEGER PRIMARY KEY, service TEXT, price TEXT, category TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $pricesTable');
+    return result.toList();
+  }
+
+  Future<void> _recreatePricesTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $pricesTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $pricesTable (id INTEGER PRIMARY KEY, service TEXT, price TEXT, category TEXT)');
   }
 
   Future<void> _addService(String service, String price, String category) async {
@@ -53,6 +98,7 @@ class _PriceScreenState extends State<PriceScreen> {
   Future<void> _updateService(int id, String service, String price) async {
     try {
       await REST.updateService(id, service, price);
+      _recreatePricesTable();
       await _fetchServices();
     } catch (error) {
       print('Error updating service: $error');
@@ -62,6 +108,7 @@ class _PriceScreenState extends State<PriceScreen> {
   Future<void> _deleteService(int id) async {
     try {
       await REST.deleteService(id);
+      _recreatePricesTable();
       await _fetchServices();
     } catch (error) {
       print('Error deleting service: $error');
@@ -144,10 +191,10 @@ class _PriceScreenState extends State<PriceScreen> {
                   if (serviceIndex < categoryServices.length) {
                     final service = categoryServices[serviceIndex];
                     return GestureDetector(
-                      onTap: userType == "owner" ? () {
+                      onTap: _pricesFromREST == true && userType == "owner" ? () {
                         _showDeleteDialog(service);
                       } : null,
-                      onLongPress: userType == "owner" ? () {
+                      onLongPress: _pricesFromREST == true && userType == "owner" ? () {
                         _showEditDialog(service);
                       } : null,
                       child: Card(
@@ -173,7 +220,7 @@ class _PriceScreenState extends State<PriceScreen> {
                       ),
                     );
                   } else {
-                    if (userType == "owner") {
+                    if (_pricesFromREST == true && userType == "owner") {
                       return GestureDetector(
                         onTap: () {
                           _showAddDialog(categories[index]);
@@ -277,7 +324,7 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
             TextButton(
               onPressed: () {
-                _deleteService(service['id']); // Передаем id услуги для удаления
+                _deleteService(service['id']);
                 Navigator.of(context).pop();
               },
               child: Text('Удалить'),

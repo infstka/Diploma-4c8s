@@ -54,9 +54,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     TimeSlot(userId: 1, timerange: "23:00-00:00", status: 1),
   ];
 
-  Future<void> updateTime() async {
+  Future<void> updateTime(String category) async {
     String formattedDate = DateFormat('dd.MM.y').format(_selectedDate);
-    await REST.updateTime(userID!, selectedTime, formattedDate);
+    await REST.updateTime(userID!, selectedTime, formattedDate, category);
     setState(() {});
   }
 
@@ -72,7 +72,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       setState(() {
         timeSlots.forEach((timeSlot) {
           bool isBooked = bookedSlots.any((bookedSlot) =>
-          timeSlot.timerange == bookedSlot.timerange &&
+              timeSlot.timerange == bookedSlot.timerange &&
               bookedSlot.status == 1);
           timeSlot.status = isBooked ? 0 : 1;
         });
@@ -85,7 +85,54 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     List<TimeSlot> bookedSlots = await REST.fetchData(formattedDate);
 
     return !bookedSlots.any((bookedSlot) =>
-    bookedSlot.timerange == selectedTime && bookedSlot.status == 1);
+        bookedSlot.timerange == selectedTime && bookedSlot.status == 1);
+  }
+
+  Future<String?> _showCategoryDialog() async {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('На что вы хотите забронировать время?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop('Репетиция');
+                  },
+                  child: Text(
+                    'Репетиция',
+                    style: TextStyle( color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop('Звукозапись');
+                  },
+                  child: Text(
+                    'Звукозапись',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -148,14 +195,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   future: Future.value(timeSlots),
                   builder: (context, snapshot) {
                     Future<void> checkBookedTimeSlots() async {
-                      List<TimeSlot> bookedSlots = await REST.fetchData(formattedDate); // получить записи из базы данных
+                      List<TimeSlot> bookedSlots = await REST.fetchData(
+                          formattedDate); // получить записи из базы данных
                       setState(() {
                         snapshot.data!.forEach((timeSlot) {
-                          bool isBooked = bookedSlots.any((bookedSlot) => timeSlot.timerange == bookedSlot.timerange && bookedSlot.status == 1);
+                          bool isBooked = bookedSlots.any((bookedSlot) =>
+                              timeSlot.timerange == bookedSlot.timerange &&
+                              bookedSlot.status == 1);
                           timeSlot.status = isBooked ? 0 : 1;
                         });
                       });
                     }
+
                     if (snapshot.hasData) {
                       //checkBookedTimeSlots();
                       return SingleChildScrollView(
@@ -172,75 +223,112 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             DataColumn(
                               label: Container(
                                   width: //MediaQuery.of(context).size.width * 0.5,
-                                  MediaQuery.of(context).size.width > 600
-                                                          ? MediaQuery.of(context).size.width * 0.2
-                                                          : MediaQuery.of(context).size.width * 0.5,
+                                      MediaQuery.of(context).size.width > 600
+                                          ? MediaQuery.of(context).size.width *
+                                              0.2
+                                          : MediaQuery.of(context).size.width *
+                                              0.5,
                                   child: Text('Статус')),
                             ),
                           ],
                           rows: snapshot.data!
                               .map((timeSlot) => DataRow(
-                            cells: [
-                              DataCell(Text("${timeSlot.timerange}")),
-                              MediaQuery.of(context).size.width > 600 ? DataCell(
-                                timeSlot.status == 0
-                                    ? Text("Занято")
-                                    :  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.green,
-                                      minimumSize:
-                                      Size(MediaQuery.of(context).size.width * 0.2, 40),
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (selectedTime == timeSlot.timerange) {
-                                          selectedTime = "";
-                                        } else {
-                                          selectedTime = timeSlot.timerange;
-                                        }
-                                      });
-                                    },
-                                    child: Text("Свободно")),
-                              )
-                                  : MediaQuery.of(context).size.width > 400 ? DataCell(
-                                timeSlot.status == 0
-                                    ? Text("Занято")
-                                    :  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.green,
-                                      minimumSize:
-                                      Size(MediaQuery.of(context).size.width * 0.3, 40),
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (selectedTime == timeSlot.timerange) {
-                                          selectedTime = "";
-                                        } else {
-                                          selectedTime = timeSlot.timerange;
-                                        }
-                                      });
-                                    },
-                                    child: Text("Свободно")),
-                              )
-                                  : DataCell(
-                                timeSlot.status == 0
-                                    ? Text("Занято")
-                                    :  ElevatedButton(
-                                    style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.all(Colors.green)),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (selectedTime == timeSlot.timerange) {
-                                          selectedTime = "";
-                                        } else {
-                                          selectedTime = timeSlot.timerange;
-                                        }
-                                      });
-                                    },
-                                    child: Text("Свободно")),
-                              ),
-                            ],
-                          ))
+                                    cells: [
+                                      DataCell(Text("${timeSlot.timerange}")),
+                                      MediaQuery.of(context).size.width > 600
+                                          ? DataCell(
+                                              timeSlot.status == 0
+                                                  ? Text("Занято")
+                                                  : ElevatedButton(
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        primary: Colors.green,
+                                                        minimumSize: Size(
+                                                            MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.2,
+                                                            40),
+                                                      ),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          if (selectedTime ==
+                                                              timeSlot
+                                                                  .timerange) {
+                                                            selectedTime = "";
+                                                          } else {
+                                                            selectedTime =
+                                                                timeSlot
+                                                                    .timerange;
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Text("Свободно")),
+                                            )
+                                          : MediaQuery.of(context).size.width >
+                                                  400
+                                              ? DataCell(
+                                                  timeSlot.status == 0
+                                                      ? Text("Занято")
+                                                      : ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            primary:
+                                                                Colors.green,
+                                                            minimumSize: Size(
+                                                                MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.3,
+                                                                40),
+                                                          ),
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              if (selectedTime ==
+                                                                  timeSlot
+                                                                      .timerange) {
+                                                                selectedTime =
+                                                                    "";
+                                                              } else {
+                                                                selectedTime =
+                                                                    timeSlot
+                                                                        .timerange;
+                                                              }
+                                                            });
+                                                          },
+                                                          child:
+                                                              Text("Свободно")),
+                                                )
+                                              : DataCell(
+                                                  timeSlot.status == 0
+                                                      ? Text("Занято")
+                                                      : ElevatedButton(
+                                                          style: ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStateProperty
+                                                                      .all(Colors
+                                                                          .green)),
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              if (selectedTime ==
+                                                                  timeSlot
+                                                                      .timerange) {
+                                                                selectedTime =
+                                                                    "";
+                                                              } else {
+                                                                selectedTime =
+                                                                    timeSlot
+                                                                        .timerange;
+                                                              }
+                                                            });
+                                                          },
+                                                          child:
+                                                              Text("Свободно")),
+                                                ),
+                                    ],
+                                  ))
                               .toList(),
                         ),
                       );
@@ -259,83 +347,126 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: selectedTime != "" ? () async {
-                  bool isAvailable = await checkAvailability(selectedTime);
+                onPressed: selectedTime != ""
+                    ? () async {
+                        String? selectedCategory = await _showCategoryDialog();
 
-                  if (isAvailable) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Подтверждение"),
-                          content: Text("Вы хотите забронировать студию ${DateFormat("dd.MM.y").format(_selectedDate)} в $selectedTime?"),                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                updateTime();
-                                setState(() {
-                                  selectedTime = "";
-                                });
-                                fetchBookedTimeSlots();
+                        if (selectedCategory != null) {
+                          bool isAvailable =
+                              await checkAvailability(selectedTime);
 
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text("Время забронировано"),
-                                      content: Text("Вы можете просмотреть бронирования в профиле пользователя"),
-                                      actions: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
+                          if (isAvailable) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Подтверждение"),
+                                  content: Text(
+                                      "Вы хотите забронировать студию ${DateFormat("dd.MM.y").format(_selectedDate)} на $selectedTime?"),
+                                  actions: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        updateTime(selectedCategory);
+                                        setState(() {
+                                          selectedTime = "";
+                                        });
+                                        fetchBookedTimeSlots();
+
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title:
+                                                  Text("Время забронировано"),
+                                              content: Text(
+                                                  "Вы можете просмотреть бронирования в профиле пользователя"),
+                                              actions: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text(
+                                                    "OK",
+                                                    style: TextStyle(
+                                                        fontSize: 15,
+                                                        color: Colors.white),
+                                                  ),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    primary: Colors.black,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
                                           },
-                                          child: Text("OK"),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                        );
+                                      },
+                                      child: Text(
+                                        "Да",
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.white),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.black,
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        "Нет",
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.white),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.black,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
-                              child: Text("Да"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
+                            );
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text("Время недоступно"),
+                                  content:
+                                      Text("Пожалуйста, выберите другое время"),
+                                  actions: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        fetchBookedTimeSlots();
+                                      },
+                                      child: Text(
+                                        "OK",
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.white),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                );
                               },
-                              child: Text("Нет"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Время недоступно"),
-                          content: Text("Пожалуйста, выберите другое"),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                fetchBookedTimeSlots();
-                              },
-                              child: Text("OK"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                } : null,
+                            );
+                          }
+                        }
+                      }
+                    : null,
                 child: Text(
                   "Забронировать",
                   style: TextStyle(fontSize: 15, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,
-                  minimumSize: Size(MediaQuery.of(context).size.width * 0.4, 40),
+                  minimumSize:
+                      Size(MediaQuery.of(context).size.width * 0.4, 40),
                 ),
               ),
               SizedBox(height: 16.0),

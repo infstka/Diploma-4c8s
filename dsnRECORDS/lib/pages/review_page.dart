@@ -104,6 +104,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
     return result.toList();
   }
 
+  Future<void> _recreateReviewsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $reviewTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $reviewTable (id INTEGER PRIMARY KEY, username TEXT, review_datetime DATETIME, review_mark INTEGER, review_comment TEXT)');
+  }
+
   Future<void> _addReview() async {
     final success = await REST.addReview(
       userId: userID!,
@@ -125,6 +132,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       setState(() {
         _reviews.removeWhere((review) => review['id'] == id);
       });
+      _recreateReviewsTable();
+      _loadReviews();
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(result['message'])));
     } else {
@@ -201,6 +210,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           updComment: newComment,
         );
         if (success) {
+          _recreateReviewsTable();
           _loadReviews();
           _selectedRating = 0;
           _commentController.clear();

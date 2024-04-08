@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -10,6 +11,10 @@ class ContactsScreen extends StatefulWidget {
 class _ContactsScreenState extends State<ContactsScreen> {
   List<dynamic> _contacts = [];
   String? userType;
+
+  final String contactsTable = 'contacts';
+
+  bool _contactsFromREST = false;
 
   @override
   void initState() {
@@ -26,14 +31,61 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _loadContacts() async {
+    // if (!UniversalPlatform.isWeb) {
+    //   final contacts = await _getContactsFromLocalDB();
+    //   setState(() {
+    //     _contacts = contacts;
+    //   });
+    // }
+
     try {
       final contacts = await REST.getContacts();
       setState(() {
         _contacts = contacts;
       });
+      _saveContactsToLocalDB(contacts);
+      _contactsFromREST = true;
     } catch (e) {
-      print('Failed to load contacts: $e');
+      print('Failed to load contacts from REST API: $e');
+      final contacts = await _getContactsFromLocalDB();
+      print('Loading contacts from local database...');
+      setState(() {
+        _contacts = contacts;
+      });
+      _contactsFromREST = false;
     }
+  }
+
+  Future<void> _saveContactsToLocalDB(List<dynamic> contacts) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $contactsTable (id INTEGER PRIMARY KEY, contact TEXT, contact_type TEXT)');
+    await db.transaction((txn) async {
+      for (final contact in contacts) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $contactsTable (id, contact, contact_type) VALUES (?, ?, ?)',
+            [
+              contact['id'],
+              contact['contact'],
+              contact['contact_type'],
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getContactsFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $contactsTable (id INTEGER PRIMARY KEY, contact TEXT, contact_type TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $contactsTable');
+    return result.toList();
+  }
+
+  Future<void> _recreateContactsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $contactsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $contactsTable (id INTEGER PRIMARY KEY, contact TEXT, contact_type TEXT)');
   }
 
   @override
@@ -63,10 +115,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
       contacts.asMap().forEach((index, contact) {
         contactGroups.add(
           GestureDetector(
-            onTap: userType == 'owner'
+            onTap: _contactsFromREST == true && userType == 'owner'
                 ? () => _showDeleteContactDialog(contact['id'])
                 : null,
-            onLongPress: userType == 'owner'
+            onLongPress: _contactsFromREST == true && userType == 'owner'
                 ? () => _showUpdateContactDialog(contact)
                 : null,
             child: ListTile(
@@ -81,8 +133,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         );
 
         if (index == contacts.length - 1) {
-          contactGroups.add(
-            userType == 'owner'
+          contactGroups.add(_contactsFromREST == true && userType == 'owner'
                 ? InkWell(
               onTap: () => _addNewContact(contactType),
               child: ListTile(
@@ -94,7 +145,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
         }
       });
 
-      // Добавляем разделитель между группами
       contactGroups.add(SizedBox(height: 20.0));
     });
 
@@ -165,7 +215,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               onPressed: () async {
                 try {
                   await REST.deleteContact(contactId);
-                  // После удаления обновляем список контактов
+                  _recreateContactsTable();
                   _loadContacts();
                   Navigator.of(context).pop();
                 } catch (e) {
@@ -207,6 +257,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               onPressed: () async {
                 try {
                   await REST.updateContact(contact['id'], newContactName);
+                  _recreateContactsTable();
                   _loadContacts();
                   Navigator.of(context).pop();
                 } catch (e) {

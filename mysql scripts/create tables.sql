@@ -15,6 +15,7 @@ user_id int,
 timerange varchar(20),
 status int,
 data varchar(20),
+category varchar(50),
 foreign key (user_id) references users (id)
 );
 
@@ -24,6 +25,7 @@ user_id int,
 timerange varchar(20),
 status int,
 data varchar(20),
+category varchar(50),
 foreign key (user_id) references users (id)
 );
 
@@ -63,4 +65,38 @@ create table contacts (
     id int auto_increment primary key,
     contact varchar(255) not null,
     contact_type varchar(255) not null
+);
+
+create table rentals (
+    id int auto_increment PRIMARY KEY,
+    start_date varchar(20) not null,
+    end_date varchar(20) not null,
+    fullname varchar(255) not null,
+    phone varchar(20) not null,
+    user_id int not null,
+    foreign key (user_id) references users(id)
+);
+
+create table rental_equipment (
+    rental_id int,
+    eq_id int,
+    foreign key (rental_id) references rentals(id),
+    foreign key (eq_id) references equipment(id),
+    primary key (rental_id, eq_id)
+);
+
+create table rentals_archive (
+    id int auto_increment PRIMARY KEY,
+    start_date varchar(20) not null,
+    end_date varchar(20) not null,
+    fullname varchar(255) not null,
+    phone varchar(20) not null,
+    user_id int not null,
+    foreign key (user_id) references users(id)
+);
+
+create table rental_equipment_archive (
+    rental_id int,
+    eq_id int,
+    primary key (rental_id, eq_id)
 );
