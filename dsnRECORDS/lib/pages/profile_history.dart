@@ -56,7 +56,7 @@ class _BookingsPageState extends State<BookingsPage> {
 
   Future<void> _saveUserBookingsToLocalDB(int userID, List<dynamic> bookings) async {
     final db = await sqflite.openDatabase('localDB.db');
-    await db.execute(''
+    await db.execute(
         'CREATE TABLE IF NOT EXISTS $userBookingsTable (id INTEGER PRIMARY KEY, user_id INTEGER, data TEXT, timerange TEXT, category TEXT)');
     await db.transaction((txn) async {
       for (final booking in bookings) {

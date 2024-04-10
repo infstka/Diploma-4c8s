@@ -11,4 +11,6 @@ truncate table prices;
 truncate table rentals;
 truncate table rental_equipment;
 truncate table contacts;
+truncate table rentals_archive;
+truncate table rental_equipment_archive;
 set foreign_key_checks = 1;

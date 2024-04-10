@@ -17,7 +17,7 @@ class _AdminScreenState extends State<AdminScreen> {
   List<dynamic> _bookings = [];
   List<dynamic> _bookings_archive = [];
   List<dynamic> _rentals = [];
-  List<dynamic> _deleted_rentals = [];
+  List<dynamic> _rentals_archive = [];
 
   int? userID;
   String? userType;
@@ -26,7 +26,9 @@ class _AdminScreenState extends State<AdminScreen> {
   final String blockedUsersTable = 'blocked_users';
   final String bookingsTable = 'bookings';
   final String deletedBookingsTable = 'bookings_archive';
-  
+  final String rentalsTable = 'rentals';
+  final String deletedRentalsTable = 'rentals_archive';
+
   bool _dataFromREST = false;
 
   @override
@@ -474,16 +476,60 @@ class _AdminScreenState extends State<AdminScreen> {
       final rentals = await REST.getRentals();
       final filteredRentals = rentals.where((rental) {
         final parsedStartDate =
-            DateFormat('dd.MM.yyyy').parse(rental['start_date']);
+        DateFormat('dd.MM.yyyy').parse(rental['start_date']);
         return parsedStartDate.isAfter(today) ||
             parsedStartDate.isAtSameMomentAs(today);
       }).toList();
       setState(() {
         _rentals = filteredRentals;
       });
+      await _saveRentalsToLocalDB(filteredRentals);
     } catch (e) {
       print('Failed to load rentals from REST API: $e');
+      final rentals = await _getRentalsFromLocalDB();
+      print('Loading rentals from local database...');
+      setState(() {
+        _rentals = rentals;
+      });
     }
+  }
+
+  Future<void> _saveRentalsToLocalDB(List<dynamic> rentals) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $rentalsTable');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $rentalsTable (id INTEGER PRIMARY KEY, userID INTEGER, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    await db.transaction((txn) async {
+      for (final rental in rentals) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $rentalsTable (id, userID, fullname, phone, start_date, end_date, eq_names) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+              rental['id'],
+              rental['user_id'],
+              rental['fullname'],
+              rental['phone'],
+              rental['start_date'],
+              rental['end_date'],
+              rental['eq_names'],
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getRentalsFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $rentalsTable (id INTEGER PRIMARY KEY, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $rentalsTable');
+    return result.toList();
+  }
+
+  Future<void> _recreateRentalsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $rentalsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $rentalsTable (id INTEGER PRIMARY KEY, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
   }
 
   void _deleteRental(int rentalId) async {
@@ -492,8 +538,10 @@ class _AdminScreenState extends State<AdminScreen> {
       setState(() {
         _rentals.removeWhere((rental) => rental['id'] == rentalId);
       });
-      _getDeletedRentals();
+      _recreateRentalsTable();
+      _recreateArchivedRentalsTable();
       _getRentals();
+      _getDeletedRentals();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Заявка на аренду успешно удалена')),
       );
@@ -554,11 +602,55 @@ class _AdminScreenState extends State<AdminScreen> {
             parsedStartDate.isAtSameMomentAs(today);
       }).toList();
       setState(() {
-        _deleted_rentals = filteredRentals;
+        _rentals_archive = filteredRentals;
       });
+      await _saveArchivedRentalsToLocalDB(filteredRentals);
     } catch (e) {
       print('Failed to load deleted rentals from REST API: $e');
+      final rentals = await _getArchivedRentalsFromLocalDB();
+      print('Loading deleted rentals from local database...');
+      setState(() {
+        _rentals_archive = rentals;
+      });
     }
+  }
+
+  Future<void> _saveArchivedRentalsToLocalDB(List<dynamic> rentals) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $deletedRentalsTable');
+
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $deletedRentalsTable (id INTEGER PRIMARY KEY, userID INTEGER, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    await db.transaction((txn) async {
+      for (final rental in rentals) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $deletedRentalsTable (id, userID, fullname, phone, start_date, end_date, eq_names) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+              rental['id'],
+              rental['user_id'],
+              rental['fullname'],
+              rental['phone'],
+              rental['start_date'],
+              rental['end_date'],
+              rental['eq_names'],
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getArchivedRentalsFromLocalDB() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $deletedRentalsTable (id INTEGER PRIMARY KEY, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $deletedRentalsTable');
+    return result.toList();
+  }
+
+  Future<void> _recreateArchivedRentalsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $deletedRentalsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $deletedRentalsTable (id INTEGER PRIMARY KEY, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
   }
 
   void _restoreRental(int rentalId) async {
@@ -566,14 +658,15 @@ class _AdminScreenState extends State<AdminScreen> {
       final result = await REST.restoreRental(rentalId);
       if (result != null) {
         setState(() {
-          _deleted_rentals.removeWhere((rental) => rental['id'] == rentalId);
+          _rentals_archive.removeWhere((rental) => rental['id'] == rentalId);
         });
+        _recreateArchivedRentalsTable();
+        _recreateRentalsTable();
         _getDeletedRentals();
         _getRentals();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Заявка на аренду успешно восстановлена')),
         );
-        _getRentals();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка восстановления заявки на аренду')),
@@ -807,7 +900,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 } else if (index == 5) {
                   return ExpansionTile(
                     title: Text('Отмененные заявки на аренду'), // New title
-                    children: _deleted_rentals.map((rental) {
+                    children: _rentals_archive.map((rental) {
                       return InkWell(
                         onTap: () {
                           _showRentalDetailsDialog(rental);

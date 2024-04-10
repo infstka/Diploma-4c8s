@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 class RentalsPage extends StatefulWidget {
   @override
@@ -10,6 +11,9 @@ class RentalsPage extends StatefulWidget {
 
 class _RentalsPageState extends State<RentalsPage> {
   List<dynamic> _rentals = [];
+
+  final String userRentalsTable = 'user_rentals';
+  bool _userRentalsFromREST = false;
 
   @override
   void initState() {
@@ -25,13 +29,59 @@ class _RentalsPageState extends State<RentalsPage> {
 
   Future<void> _getUserRentals(int userID) async {
     try {
-      final rentals = await REST.getUserRentals(userID);
+      List<dynamic> updatedRentals = [];
+      final List<dynamic> fetchedRentals = await REST.getUserRentals(userID);
+      updatedRentals.addAll(fetchedRentals);
+      setState(() {
+        _rentals = updatedRentals;
+        _userRentalsFromREST = true;
+      });
+      await _saveUserRentalsToLocalDB(updatedRentals, userID);
+    } catch (error) {
+      print('Failed to load user rentals from REST API: $error');
+      final rentals = await _getUserRentalsFromLocalDB(userID);
+      print('Loading user rentals from local database...');
       setState(() {
         _rentals = rentals;
+        _userRentalsFromREST = false;
       });
-    } catch (e) {
-      print('Failed to load user rentals from REST API: $e');
     }
+  }
+
+  Future<void> _saveUserRentalsToLocalDB(List<dynamic> rentals, int userID) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $userRentalsTable (id INTEGER PRIMARY KEY, userID INTEGER, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    await db.transaction((txn) async {
+      for (final rental in rentals) {
+        await txn.rawInsert(
+            'INSERT OR REPLACE INTO $userRentalsTable (id, userID, fullname, phone, start_date, end_date, eq_names) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+              rental['id'],
+              rental['user_id'],
+              rental['fullname'],
+              rental['phone'],
+              rental['start_date'],
+              rental['end_date'],
+              rental['eq_names'],
+            ]);
+      }
+    });
+  }
+
+  Future<List<dynamic>> _getUserRentalsFromLocalDB(int userID) async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $userRentalsTable (id INTEGER PRIMARY KEY, userID INTEGER, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
+    final result = await db.rawQuery('SELECT * FROM $userRentalsTable WHERE userID = ?', [userID]); // фильтруем по userID
+    return result.toList();
+  }
+
+  Future<void> _recreateUserRentalsTable() async {
+    final db = await sqflite.openDatabase('localDB.db');
+    await db.execute('DROP TABLE IF EXISTS $userRentalsTable');
+    await db.execute(
+        'CREATE TABLE IF NOT EXISTS $userRentalsTable (id INTEGER PRIMARY KEY, fullname TEXT, phone TEXT, start_date TEXT, end_date TEXT, eq_names TEXT)');
   }
 
   void _deleteRental(int index) {
@@ -60,6 +110,7 @@ class _RentalsPageState extends State<RentalsPage> {
                 } catch (e) {
                   print('Failed to delete rental: $e');
                 }
+                _recreateUserRentalsTable();
                 Navigator.of(context).pop();
               },
             ),
@@ -101,7 +152,7 @@ class _RentalsPageState extends State<RentalsPage> {
               },
               child: Text('Закрыть'),
             ),
-            if (_isDeletable(rental['start_date'])) // Проверяем, можно ли удалять эту заявку
+            if (_userRentalsFromREST == true && _isDeletable(rental['start_date']))
               TextButton(
                 onPressed: () {
                   _deleteRental(_rentals.indexOf(rental));
