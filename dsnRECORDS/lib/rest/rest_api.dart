@@ -8,7 +8,7 @@ import '../widgets/time_slot.dart';
 //172.20.10.10
 //localhost
 class REST {
-  static const String BASE_URL = 'http://localhost:3000';
+  static const String BASE_URL = 'http://192.168.100.6:3000';
 
   static Future userLogin(String user_email, String user_password) async {
     final response = await http.post(Uri.parse('$BASE_URL/user/login'),

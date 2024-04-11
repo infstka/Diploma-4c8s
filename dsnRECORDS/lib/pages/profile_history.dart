@@ -3,6 +3,7 @@ import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class BookingsPage extends StatefulWidget {
   @override
@@ -15,10 +16,70 @@ class _BookingsPageState extends State<BookingsPage> {
   final String userBookingsTable = 'user_bookings';
   bool _dataFromREST = false;
 
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
     _loadUserIDAndBookings();
+    _initializeNotifications();
+    _scheduleNotificationsForBookings();
+  }
+
+  Future<void> _initializeNotifications() async {
+    final initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/launcher_icon');
+    final initializationSettingsIOS = IOSInitializationSettings();
+    final initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _scheduleNotificationsForBookings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    for (final booking in _bookings) {
+      List<String> times = booking['timerange'].split('-');
+      List<String> startComponents = times[0].split(':');
+      int startHour = int.parse(startComponents[0]);
+      int startMinute = int.parse(startComponents[1]);
+
+      List<String> dateComponents = booking['data'].split('.');
+      int day = int.parse(dateComponents[0]);
+      int month = int.parse(dateComponents[1]);
+      int year = int.parse(dateComponents[2]);
+
+      DateTime startDate = DateTime(year, month, day, startHour, startMinute);
+
+      if (startDate.isAfter(now) && startDate.isAfter(DateTime.now())) {
+        DateTime notificationTime = startDate.subtract(Duration(hours: 1));
+
+        Duration difference = notificationTime.difference(now);
+
+        int notificationId = booking['id'];
+
+        bool alreadyNotified = prefs.getBool('$notificationId') ?? false;
+        if (!alreadyNotified) {
+          Future.delayed(difference, () {
+            _sendNotification(notificationId, 'Напоминаем о бронировании', 'Вы записаны ${booking['data']} на ${times[0]}');
+            prefs.setBool('$notificationId', true);
+          });
+        }
+      }
+    }
+  }
+
+  void _sendNotification(int notificationId, String title, String message) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'booking_notifications', 'Booking Notifications', 'Notifications for upcoming bookings',
+        importance: Importance.max, priority: Priority.high, ticker: 'Сообщение от dsn RECORDS!');
+    const NotificationDetails platformChannelSpecifics =
+    NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      notificationId,
+      title,
+      message,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
   }
 
   void _loadUserIDAndBookings() async {
@@ -40,6 +101,7 @@ class _BookingsPageState extends State<BookingsPage> {
       });
       _saveUserBookingsToLocalDB(userID, bookings);
       _dataFromREST = true;
+      _scheduleNotificationsForBookings();
     } catch (e) {
       print('Failed to load user bookings from REST API: $e');
       final bookings = await _getUserBookingsFromLocalDB(userID);
@@ -168,7 +230,7 @@ class _BookingsPageState extends State<BookingsPage> {
           SizedBox(height: 16.0),
           Expanded(
             child: _bookings.isEmpty
-                  ? Center(child: Text('Забронированное время не найдено'))
+                ? Center(child: Text('Забронированное время не найдено'))
                 : ListView.builder(
               itemCount: _bookings.length,
               itemBuilder: (context, index) {

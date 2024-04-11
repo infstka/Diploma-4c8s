@@ -23,6 +23,7 @@ dependencies:
   url_strategy: any
   dcdg: 3.0.0
   image_picker: any
+  flutter_local_notifications: ^8.2.0
 
 dev_dependencies:
   json_serializable:
