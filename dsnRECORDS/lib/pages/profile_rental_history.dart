@@ -3,6 +3,7 @@ import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
+import '../jwt/jwt_check.dart';
 
 class RentalsPage extends StatefulWidget {
   @override
@@ -97,11 +98,13 @@ class _RentalsPageState extends State<RentalsPage> {
               child: Text("Нет"),
               onPressed: () {
                 Navigator.of(context).pop();
+                JWT.checkTokenValidity(context);
               },
             ),
             TextButton(
               child: Text("Да"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 try {
                   await REST.deleteRental(rental['id']);
                   setState(() {
@@ -148,6 +151,7 @@ class _RentalsPageState extends State<RentalsPage> {
           actions: [
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Закрыть'),
@@ -155,6 +159,7 @@ class _RentalsPageState extends State<RentalsPage> {
             if (_userRentalsFromREST == true && _isDeletable(rental['start_date']))
               TextButton(
                 onPressed: () {
+                  JWT.checkTokenValidity(context);
                   _deleteRental(_rentals.indexOf(rental));
                 },
                 child: Text('Удалить'),
@@ -196,7 +201,10 @@ class _RentalsPageState extends State<RentalsPage> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,
@@ -222,6 +230,7 @@ class _RentalsPageState extends State<RentalsPage> {
           final rental = _rentals[index];
           return InkWell(
             onTap: () {
+              JWT.checkTokenValidity(context);
               _showRentalDetailsDialog(rental);
             },
             child: ListTile(

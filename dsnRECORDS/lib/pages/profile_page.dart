@@ -5,6 +5,7 @@ import 'package:dsn_records/pages/profile_history.dart';
 import 'package:dsn_records/pages/profile_rental_history.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../jwt/jwt_check.dart';
 
 void clearSharedPreferences() async {
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -98,6 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
+                  JWT.checkTokenValidity(context);
                   Navigator.push(
                     context,
                     PageRouteBuilder(
@@ -123,6 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
+                  JWT.checkTokenValidity(context);
                   Navigator.push(
                     context,
                     PageRouteBuilder(
@@ -151,6 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
+                  JWT.checkTokenValidity(context);
                   Navigator.push(
                     context,
                     PageRouteBuilder(
@@ -179,6 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 40,
               child: ElevatedButton(
                 onPressed: () {
+                  JWT.checkTokenValidity(context);
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -188,6 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();
+                            JWT.checkTokenValidity(context);
                           },
                           child: Text('Нет'),
                         ),
@@ -219,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             InkWell(
               hoverColor: Colors.transparent,
               onTap: () {
+                JWT.checkTokenValidity(context);
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
@@ -229,6 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).pop();
+                          JWT.checkTokenValidity(context);
                         },
                         child: Text('Отмена'),
                       ),

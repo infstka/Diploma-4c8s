@@ -97,7 +97,8 @@ class _LoginPageState extends State<LoginPage> {
                             _emailController.text, _passwordController.text)
                             : Fluttertoast.showToast(
                             msg: 'Необходимо заполнить все поля!',
-                            textColor: Colors.red);
+                            textColor: Colors.red,
+                            backgroundColor: Colors.white,);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.white,
@@ -149,12 +150,18 @@ class _LoginPageState extends State<LoginPage> {
     print(res.toString());
 
     if (res['success']) {
+      String token = res['token'];
+
+      _sharedPreferences.setString('token', token);
+
       int isBlocked = res['user'][0]['blocked'];
 
       if (isBlocked == 1) {
         Fluttertoast.showToast(
             msg: "Ваш аккаунт был заблокирован!",
-            textColor: Colors.red);
+            textColor: Colors.red,
+            backgroundColor: Colors.white,
+        );
       } else {
         String userEmail = res['user'][0]['user_email'];
         int userID = res['user'][0]['id'];
@@ -171,7 +178,9 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       Fluttertoast.showToast(
           msg: "Неверные данные! Попробуйте снова",
-          textColor: Colors.red);
+        textColor: Colors.red,
+        backgroundColor: Colors.white,
+      );
     }
   }
 }

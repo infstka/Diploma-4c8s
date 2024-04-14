@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/equipment_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
+import 'login_page.dart';
 
 class RentalScreen extends StatefulWidget {
   @override
@@ -39,12 +43,59 @@ class _RentalScreenState extends State<RentalScreen> {
     fullNameController.addListener(_updateSubmitButtonState);
     phoneController.addListener(_updateSubmitButtonState);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_dialogShown) {
-        _showMyDialog();
-        _dialogShown = true;
-      }
+    _checkTokenValidity();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _checkTokenValidity();
     });
+  }
+
+  void clearSharedPreferences() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.clear();
+  }
+
+  Future<void> _checkTokenValidity() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      Fluttertoast.showToast(
+        msg: 'Войдите для продолжения',
+        textColor: Colors.white,
+        backgroundColor: Colors.black,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      return;
+    }
+
+    bool dialogShown = prefs.getBool('dialogShown') ?? false;
+    if (!dialogShown) {
+      _showMyDialog();
+      prefs.setBool('dialogShown', true);
+    }
+
+    //проверка токена
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    int expiryTimeInSeconds = decodedToken['exp'];
+    DateTime expiryDateTime = DateTime.fromMillisecondsSinceEpoch(expiryTimeInSeconds * 1000);
+
+    bool isTokenValid = DateTime.now().isBefore(expiryDateTime.add(Duration(seconds: 5)));
+    if (!isTokenValid) {
+      clearSharedPreferences();
+      Fluttertoast.showToast(
+        msg: 'Сессия истекла. Войдите снова',
+        textColor: Colors.red,
+        backgroundColor: Colors.white,);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      prefs.setBool('dialogShown', false);
+      return;
+    }
   }
 
   void _updateSubmitButtonState() {
@@ -103,6 +154,7 @@ class _RentalScreenState extends State<RentalScreen> {
   }
 
   Future<void> _showMyDialog() async {
+    JWT.checkTokenValidity(context);
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -126,6 +178,7 @@ class _RentalScreenState extends State<RentalScreen> {
                 child: Text('ОК', style: TextStyle(color: Colors.white)),
                 onPressed: () {
                   Navigator.of(context).pop();
+                  JWT.checkTokenValidity(context);
                 },
               ),
             ),
@@ -135,8 +188,7 @@ class _RentalScreenState extends State<RentalScreen> {
     );
   }
 
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -168,6 +220,7 @@ class _RentalScreenState extends State<RentalScreen> {
           actions: <Widget>[
             ElevatedButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
                 _submitRentalRequest();
                 _showSuccessDialog();
@@ -182,6 +235,7 @@ class _RentalScreenState extends State<RentalScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                JWT.checkTokenValidity(context);
               },
               child: Text('Отмена',
                 style: TextStyle(color: Colors.white),
@@ -215,6 +269,7 @@ class _RentalScreenState extends State<RentalScreen> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                JWT.checkTokenValidity(context);
               },
               child: Text('OK',
                 style: TextStyle(color: Colors.white),
@@ -253,6 +308,7 @@ class _RentalScreenState extends State<RentalScreen> {
             SizedBox(height: 8.0),
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.push(
                   context,
                   PageRouteBuilder(
@@ -297,6 +353,7 @@ class _RentalScreenState extends State<RentalScreen> {
                     controller: startDateController,
                     readOnly: true,
                     onTap: () {
+                      JWT.checkTokenValidity(context);
                       _selectDate(context, startDateController);
                     },
                     decoration: InputDecoration(
@@ -312,6 +369,7 @@ class _RentalScreenState extends State<RentalScreen> {
                     controller: endDateController,
                     readOnly: true,
                     onTap: () {
+                      JWT.checkTokenValidity(context);
                       _selectDate(context, endDateController);
                     },
                     decoration: InputDecoration(
@@ -387,6 +445,7 @@ class _RentalScreenState extends State<RentalScreen> {
                     onPressed: areFieldsEmpty() || selectedEquipment.isEmpty
                         ? null
                         : () {
+                      JWT.checkTokenValidity(context);
                       _showConfirmationDialog();
                     },
                     child: Text('Отправить заявку',

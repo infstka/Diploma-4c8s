@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -141,7 +142,10 @@ class _PriceScreenState extends State<PriceScreen> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,
@@ -192,9 +196,11 @@ class _PriceScreenState extends State<PriceScreen> {
                     final service = categoryServices[serviceIndex];
                     return GestureDetector(
                       onTap: _pricesFromREST == true && userType == "owner" ? () {
+                        JWT.checkTokenValidity(context);
                         _showDeleteDialog(service);
                       } : null,
                       onLongPress: _pricesFromREST == true && userType == "owner" ? () {
+                        JWT.checkTokenValidity(context);
                         _showEditDialog(service);
                       } : null,
                       child: Card(
@@ -223,6 +229,7 @@ class _PriceScreenState extends State<PriceScreen> {
                     if (_pricesFromREST == true && userType == "owner") {
                       return GestureDetector(
                         onTap: () {
+                          JWT.checkTokenValidity(context);
                           _showAddDialog(categories[index]);
                         },
                         child: Card(
@@ -238,6 +245,7 @@ class _PriceScreenState extends State<PriceScreen> {
                               SizedBox(height: 8.0),
                               Text(
                                 'Добавить новую услугу',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(color: Colors.white, fontSize: 16.0),
                               ),
                             ],
@@ -288,12 +296,15 @@ class _PriceScreenState extends State<PriceScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Отмена'),
             ),
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
+
                 String newServiceName = serviceNameController.text;
                 String newPrice = priceController.text;
 
@@ -318,12 +329,14 @@ class _PriceScreenState extends State<PriceScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Отмена'),
             ),
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 _deleteService(service['id']);
                 Navigator.of(context).pop();
               },
@@ -368,12 +381,14 @@ class _PriceScreenState extends State<PriceScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Отмена'),
             ),
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 String updatedServiceName = serviceNameController.text;
                 String updatedPrice = priceController.text;
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dsn_records/widgets/time_slot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -101,6 +102,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    JWT.checkTokenValidity(context);
                     Navigator.of(context).pop('Репетиция');
                   },
                   child: Text(
@@ -117,6 +119,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    JWT.checkTokenValidity(context);
                     Navigator.of(context).pop('Звукозапись');
                   },
                   child: Text(
@@ -152,6 +155,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       // Navigate to the previous date, but limit it to today's date
                       setState(() {
                         _selectedDate = DateTime(
@@ -173,6 +177,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                   IconButton(
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       // Navigate to the next date
                       setState(() {
                         _selectedDate = DateTime(
@@ -252,6 +257,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                             40),
                                                       ),
                                                       onPressed: () {
+                                                        JWT.checkTokenValidity(context);
                                                         setState(() {
                                                           if (selectedTime ==
                                                               timeSlot
@@ -285,6 +291,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                                 40),
                                                           ),
                                                           onPressed: () {
+                                                            JWT.checkTokenValidity(context);
                                                             setState(() {
                                                               if (selectedTime ==
                                                                   timeSlot
@@ -311,6 +318,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                                       .all(Colors
                                                                           .green)),
                                                           onPressed: () {
+                                                            JWT.checkTokenValidity(context);
                                                             setState(() {
                                                               if (selectedTime ==
                                                                   timeSlot
@@ -347,9 +355,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
               ),
               ElevatedButton(
-                onPressed: selectedTime != ""
-                    ? () async {
-                        String? selectedCategory = await _showCategoryDialog();
+                onPressed: selectedTime != "" ? () async {
+                  JWT.checkTokenValidity(context);
+                  String? selectedCategory = await _showCategoryDialog();
 
                         if (selectedCategory != null) {
                           bool isAvailable =
@@ -366,6 +374,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   actions: [
                                     ElevatedButton(
                                       onPressed: () {
+                                        JWT.checkTokenValidity(context);
                                         Navigator.of(context).pop();
                                         updateTime(selectedCategory);
                                         setState(() {
@@ -384,6 +393,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                               actions: [
                                                 ElevatedButton(
                                                   onPressed: () {
+                                                    JWT.checkTokenValidity(context);
                                                     Navigator.of(context).pop();
                                                   },
                                                   child: Text(
@@ -413,6 +423,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
+                                        JWT.checkTokenValidity(context);
                                         Navigator.of(context).pop();
                                       },
                                       child: Text(
@@ -439,6 +450,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   actions: [
                                     ElevatedButton(
                                       onPressed: () {
+                                        JWT.checkTokenValidity(context);
                                         Navigator.of(context).pop();
                                         fetchBookedTimeSlots();
                                       },

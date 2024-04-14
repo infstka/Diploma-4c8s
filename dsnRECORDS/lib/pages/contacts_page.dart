@@ -1,3 +1,4 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,12 +116,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
       contacts.asMap().forEach((index, contact) {
         contactGroups.add(
           GestureDetector(
-            onTap: _contactsFromREST == true && userType == 'owner'
-                ? () => _showDeleteContactDialog(contact['id'])
-                : null,
-            onLongPress: _contactsFromREST == true && userType == 'owner'
-                ? () => _showUpdateContactDialog(contact)
-                : null,
+            onTap: () {
+              JWT.checkTokenValidity(context);
+              if (_contactsFromREST == true && userType == 'owner') {
+                _showDeleteContactDialog(contact['id']);
+              }
+            },
+            onLongPress: () {
+              JWT.checkTokenValidity(context);
+              if (_contactsFromREST == true && userType == 'owner') {
+                _showUpdateContactDialog(contact);
+              }
+            },
             child: ListTile(
               title: Center(
                 child: Text(
@@ -133,9 +140,15 @@ class _ContactsScreenState extends State<ContactsScreen> {
         );
 
         if (index == contacts.length - 1) {
-          contactGroups.add(_contactsFromREST == true && userType == 'owner'
+          contactGroups.add(
+            _contactsFromREST == true && userType == 'owner'
                 ? InkWell(
-              onTap: () => _addNewContact(contactType),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                if (_contactsFromREST == true && userType == 'owner') {
+                  _addNewContact(contactType);
+                }
+              },
               child: ListTile(
                 title: Center(child: Icon(Icons.add)),
               ),
@@ -171,7 +184,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,
@@ -207,12 +223,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
             TextButton(
               child: Text("Отмена"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text("Удалить"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 try {
                   await REST.deleteContact(contactId);
                   _recreateContactsTable();
@@ -255,6 +273,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             TextButton(
               child: Text("Сохранить"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 try {
                   await REST.updateContact(contact['id'], newContactName);
                   _recreateContactsTable();
@@ -273,6 +292,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _addNewContact(String contactType) async {
+    JWT.checkTokenValidity(context);
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -291,12 +311,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
             TextButton(
               child: Text("Отмена"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text("Добавить"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 try {
                   await REST.addContact(newContactName, contactType);
                   _loadContacts();

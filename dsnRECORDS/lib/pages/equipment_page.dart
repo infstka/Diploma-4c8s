@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -124,7 +125,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
     _image = null;
     _isRentable = false;
     _selectedPriceId = null;
-
+    JWT.checkTokenValidity(context);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -155,6 +156,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                     SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () async {
+                        JWT.checkTokenValidity(context);
                         final pickedFile =
                         await picker.pickImage(source: ImageSource.gallery);
                         if (pickedFile != null) {
@@ -227,6 +229,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
+                    JWT.checkTokenValidity(context);
                     Navigator.of(context).pop();
                     setState(() {
                       _isRentable = false;
@@ -237,6 +240,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
+                    JWT.checkTokenValidity(context);
                     Navigator.of(context).pop();
                     if (_equipmentName.isNotEmpty && _image != null) {
                       try {
@@ -293,6 +297,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
   }
 
   Future<void> _showDeleteConfirmationDialog(int equipmentId) async {
+    JWT.checkTokenValidity(context);
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -308,12 +313,14 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Отмена'),
             ),
             TextButton(
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 try {
                   await REST.deleteEquipment(equipmentId);
                   _recreateEquipmentTable();
@@ -383,7 +390,10 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,

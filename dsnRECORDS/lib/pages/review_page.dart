@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
+import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_platform/universal_platform.dart';
@@ -112,6 +113,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   Future<void> _addReview() async {
+    JWT.checkTokenValidity(context);
     final success = await REST.addReview(
       userId: userID!,
       rating: _selectedRating,
@@ -162,7 +164,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     index < currentRating ? Icons.star : Icons.star_border,
                     color: Colors.amber,
                   ),
-                  onPressed: () => Navigator.pop(context, index + 1),
+                  onPressed: () {
+                    JWT.checkTokenValidity(context);
+                    Navigator.pop(context, index + 1);
+                  },
                 ),
               ),
             ),
@@ -187,12 +192,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
             actions: [
               TextButton(
                 child: Text('Отмена'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  JWT.checkTokenValidity(context);
+                  Navigator.pop(context);
+                },
               ),
               ElevatedButton(
                 child: Text('Сохранить'),
-                onPressed: () =>
-                    Navigator.pop(context, _commentController.text),
+                onPressed: () {
+                  JWT.checkTokenValidity(context);
+                  Navigator.pop(context, _commentController.text);
+                },
               ),
             ],
           );
@@ -240,6 +250,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       leading: Icon(Icons.star),
                       title: Text('По оценке (возрастание)'),
                       onTap: () {
+                        JWT.checkTokenValidity(context);
                         Navigator.pop(context);
                         _loadReviews(sort: 'mark', sortOrder: 'asc');
                       },
@@ -250,6 +261,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       leading: Icon(Icons.star),
                       title: Text('По оценке (убывание)'),
                       onTap: () {
+                        JWT.checkTokenValidity(context);
                         Navigator.pop(context);
                         _loadReviews(sort: 'mark', sortOrder: 'desc');
                       },
@@ -260,6 +272,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       leading: Icon(Icons.calendar_today),
                       title: Text('По дате (возрастание)'),
                       onTap: () {
+                        JWT.checkTokenValidity(context);
                         Navigator.pop(context);
                         _loadReviews(sort: 'date', sortOrder: 'asc');
                       },
@@ -270,6 +283,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       leading: Icon(Icons.calendar_today),
                       title: Text('По дате (убывание)'),
                       onTap: () {
+                        JWT.checkTokenValidity(context);
                         Navigator.pop(context);
                         _loadReviews(sort: 'date', sortOrder: 'desc');
                       },
@@ -335,8 +349,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             child: isUserReview
                                 ? IconButton(
                               icon: Icon(Icons.edit),
-                              onPressed: () =>
-                                  _handleUpdateReview(review['id']),
+                              onPressed: () {
+                                JWT.checkTokenValidity(context);
+                                _handleUpdateReview(review['id']);
+                              },
                             )
                                 : null,
                           ),
@@ -346,7 +362,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             child: isUserReview
                                 ? IconButton(
                               icon: Icon(Icons.delete),
-                              onPressed: () => _deleteReview(review['id']),
+                              onPressed: () {
+                                JWT.checkTokenValidity(context);
+                                _deleteReview(review['id']);
+                              },
                             )
                                 : null,
                           ),
@@ -403,8 +422,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             child: isUserReview
                                 ? IconButton(
                               icon: Icon(Icons.edit),
-                              onPressed: () =>
-                                  _handleUpdateReview(review['id']),
+                              onPressed: () {
+                                JWT.checkTokenValidity(context);
+                                _handleUpdateReview(review['id']);
+                              },
                             )
                                 : null,
                           ),
@@ -413,7 +434,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             message: 'Удалить отзыв',
                             child: IconButton(
                               icon: Icon(Icons.delete),
-                              onPressed: () => _deleteReview(review['id']),
+                              onPressed: () {
+                                JWT.checkTokenValidity(context);
+                                _deleteReview(review['id']);
+                              },
                             ),
                           ),
                       ],
@@ -433,6 +457,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   InkWell(
                     onTap: () {
                       setState(() {
+                        JWT.checkTokenValidity(context);
                         _isFormVisible = !_isFormVisible;
                       });
                     },
@@ -460,6 +485,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             for (int i = 1; i <= 5; i++)
                               GestureDetector(
                                 onTap: () {
+                                  JWT.checkTokenValidity(context);
                                   setState(() {
                                     _selectedRating = i;
                                   });

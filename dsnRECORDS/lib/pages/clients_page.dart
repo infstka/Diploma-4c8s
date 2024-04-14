@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Uint8List? _imageBytes;
 
   Future<void> _addClient() async {
+    JWT.checkTokenValidity(context);
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -115,6 +117,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
+                    JWT.checkTokenValidity(context);
                     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
                     if (pickedFile != null) {
                       final imageBytes = await pickedFile.readAsBytes();
@@ -133,12 +136,14 @@ class _ClientsScreenState extends State<ClientsScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Отмена'),
             ),
             TextButton(
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
                 if (_clientName.isNotEmpty && _imageBytes != null) {
                   try {
@@ -208,12 +213,14 @@ class _ClientsScreenState extends State<ClientsScreen> {
             TextButton(
               child: Text('Отмена'),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text('Удалить'),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
                 _deleteClient(clientId);
               },
@@ -249,7 +256,10 @@ class _ClientsScreenState extends State<ClientsScreen> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,
@@ -278,6 +288,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
           if (index < clientData.length) {
             return GestureDetector(
               onTap: () {
+                JWT.checkTokenValidity(context);
                 if (_clientsFromREST == true && userType == 'owner') {
                   _showDeleteConfirmationDialog(clientData[index]['id']);
                 }

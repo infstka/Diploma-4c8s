@@ -1,7 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto'); 
 var db = require('./database.js');
+
+// Генерация случайного секретного ключа
+const secretKey = crypto.randomBytes(32).toString('hex');
+
+// Функция для генерации JWT токена
+function generateToken(user_email) {
+    const token = jwt.sign({ email: user_email }, secretKey, { expiresIn: '3d' });
+    return token;
+}
 
 // Регистрация (+ проверка)
 router.route('/register').post(async (req, res) => {
@@ -17,7 +28,6 @@ router.route('/register').post(async (req, res) => {
                 message: error
             }));
         } else {
-            // Получение результата из переменной @userExists
             db.query('SELECT @userExists AS userExists', (error, results, fields) => {
                 if (error) {
                     res.send(JSON.stringify({
@@ -68,9 +78,11 @@ router.route('/login').post((req, res) => {
             if (data[0].length > 0) {
                 const match = await bcrypt.compare(user_password, data[0][0].user_password);
                 if (match) {
+                    const token = generateToken(user_email); 
                     res.send(JSON.stringify({
                         success: true,
-                        user: data[0]
+                        user: data[0],
+                        token: token 
                     }));
                 } else {
                     res.send(JSON.stringify({

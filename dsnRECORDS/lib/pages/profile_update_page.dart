@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dsn_records/widgets/update_profile_form_fields_widget.dart';
-
+import '../jwt/jwt_check.dart';
 import 'login_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -31,15 +31,14 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     sharedPreferences.clear();
   }
 
-  // Controllers для полей ввода
+  //контроллеры для полей ввода
   final _usernameController = TextEditingController();
   final _userPasswordController = TextEditingController();
   final _userEmailController = TextEditingController();
 
-  // Сохранение данных
   Future<void> _saveData() async {
+    JWT.checkTokenValidity(context);
     if (_formKey.currentState!.validate()) {
-      // Отправляем запрос на сервер
       final response = await REST.updateUser({
         'id': userID.toString(),
         'username': _usernameController.text.trim(),
@@ -48,7 +47,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
       });
 
       if (response['error'] != null) {
-        // Если сервер вернул ошибку, отображаем сообщение в приложении
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -58,6 +56,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
               actions: [
                 TextButton(
                   onPressed: () {
+                    JWT.checkTokenValidity(context);
                     Navigator.of(context).pop();
                   },
                   child: Text('OK'),
@@ -101,7 +100,10 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,

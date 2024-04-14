@@ -3,18 +3,23 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
 import '../widgets/time_slot.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 //192.168.100.6
 //172.20.10.10
 //localhost
 class REST {
-  static const String BASE_URL = 'http://192.168.100.6:3000';
+  static const String BASE_URL = 'http://localhost:3000';
 
   static Future userLogin(String user_email, String user_password) async {
     final response = await http.post(Uri.parse('$BASE_URL/user/login'),
         headers: {"Accept": "Application/json"},
         body: {'user_email': user_email, 'user_password': user_password});
     var decodedData = jsonDecode(response.body);
+    if (decodedData['success'] == true) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', decodedData['token']);
+    }
     return decodedData;
   }
 

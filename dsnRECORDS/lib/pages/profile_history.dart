@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../jwt/jwt_check.dart';
 
 class BookingsPage extends StatefulWidget {
   @override
@@ -144,8 +145,11 @@ class _BookingsPageState extends State<BookingsPage> {
     await _getUserBookings(userID!);
   }
 
-  void _deleteBooking(int index) {
+  void _deleteBooking(int index) async {
     final booking = _bookings[index];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int notificationId = booking['id'];
+    prefs.remove('$notificationId');
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -156,12 +160,14 @@ class _BookingsPageState extends State<BookingsPage> {
             TextButton(
               child: Text("Нет"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text("Да"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 await REST.deleteBooking(booking['id']);
                 setState(() {
                   _bookings.removeAt(index);
@@ -207,7 +213,10 @@ class _BookingsPageState extends State<BookingsPage> {
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.only(left: 20.0),
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(),
+              onTap: () {
+                JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
+              },
               customBorder: CircleBorder(),
               child: SizedBox(
                 width: 25.0,
@@ -241,7 +250,10 @@ class _BookingsPageState extends State<BookingsPage> {
                   trailing: _dataFromREST == true && _isDeletable(booking['data'])
                       ? IconButton(
                     icon: Icon(Icons.delete),
-                    onPressed: () => _deleteBooking(index),
+                    onPressed: () {
+                      JWT.checkTokenValidity(context);
+                      _deleteBooking(index);
+                    },
                   )
                       : null,
                 );

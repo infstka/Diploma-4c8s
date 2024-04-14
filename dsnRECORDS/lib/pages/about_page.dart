@@ -3,6 +3,7 @@ import 'package:dsn_records/pages/price_page.dart';
 import 'package:dsn_records/pages/equipment_page.dart';
 import 'package:dsn_records/pages/clients_page.dart';
 import 'package:dsn_records/pages/contacts_page.dart';
+import '../jwt/jwt_check.dart';
 
 class AboutScreen extends StatefulWidget {
   @override
@@ -69,6 +70,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       shadowColor: MaterialStateProperty.all(Colors.transparent),
                     ),
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -111,6 +113,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       shadowColor: MaterialStateProperty.all(Colors.transparent),
                     ),
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -153,6 +156,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       shadowColor: MaterialStateProperty.all(Colors.transparent),
                     ),
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -195,6 +199,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       shadowColor: MaterialStateProperty.all(Colors.transparent),
                     ),
                     onPressed: () {
+                      JWT.checkTokenValidity(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(

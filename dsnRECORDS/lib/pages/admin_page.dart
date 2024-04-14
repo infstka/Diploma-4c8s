@@ -6,6 +6,8 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_platform/universal_platform.dart';
 
+import '../jwt/jwt_check.dart';
+
 class AdminScreen extends StatefulWidget {
   @override
   _AdminScreenState createState() => _AdminScreenState();
@@ -711,7 +713,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Удалить пользователя',
                                   child: IconButton(
                                     icon: Icon(Icons.delete),
-                                    onPressed: () => _deleteUser(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _deleteUser(user['id']);
+                                    },
                                   ),
                                 ),
                               if (userType != 'owner' && _dataFromREST == true)
@@ -719,7 +724,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Заблокировать пользователя',
                                   child: IconButton(
                                     icon: Icon(Icons.block),
-                                    onPressed: () => _blockUser(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _blockUser(user['id']);
+                                    },
                                   ),
                                 ),
                               if (userType == 'user' && _dataFromREST == true)
@@ -727,7 +735,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Назначить администратором',
                                   child: IconButton(
                                     icon: Icon(Icons.arrow_circle_up),
-                                    onPressed: () => _setAdmin(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _setAdmin(user['id']);
+                                    },
                                   ),
                                 ),
                               if (userType == 'admin' && _dataFromREST == true)
@@ -735,7 +746,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Убрать полномочия',
                                   child: IconButton(
                                     icon: Icon(Icons.arrow_circle_down),
-                                    onPressed: () => _setUser(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _setUser(user['id']);
+                                    },
                                   ),
                                 )
                             ],
@@ -767,7 +781,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Удалить пользователя',
                                   child: IconButton(
                                     icon: Icon(Icons.delete),
-                                    onPressed: () => _deleteUser(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _deleteUser(user['id']);
+                                    },
                                   ),
                                 ),
                               if (!isCurrentUser &&
@@ -777,7 +794,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Заблокировать пользователя',
                                   child: IconButton(
                                     icon: Icon(Icons.block),
-                                    onPressed: () => _blockUser(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _blockUser(user['id']);
+                                    },
                                   ),
                                 ),
                               if (!isCurrentUser &&
@@ -787,7 +807,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Назначить администратором',
                                   child: IconButton(
                                     icon: Icon(Icons.arrow_circle_up),
-                                    onPressed: () => _setAdmin(user['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _setAdmin(user['id']);
+                                    },
                                   ),
                                 ),
                             ],
@@ -811,8 +834,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                 message: 'Удалить пользователя',
                                 child: IconButton(
                                   icon: Icon(Icons.delete),
-                                  onPressed: () =>
-                                      _deleteUser(blocked_user['id']),
+                                  onPressed: () {
+                                    JWT.checkTokenValidity(context);
+                                    _deleteUser(blocked_user['id']);
+                                  },
                                 ),
                               ),
                             if (_dataFromREST == true)
@@ -820,8 +845,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                 message: 'Разблокировать пользователя',
                                 child: IconButton(
                                   icon: Icon(Icons.restore),
-                                  onPressed: () =>
-                                      _unblockUser(blocked_user['id']),
+                                  onPressed: () {
+                                    JWT.checkTokenValidity(context);
+                                    _unblockUser(blocked_user['id']);
+                                  },
                                 ),
                               ),
                           ],
@@ -843,7 +870,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                 message: 'Отменить бронирование',
                                 child: IconButton(
                                   icon: Icon(Icons.delete),
-                                  onPressed: () => _deleteBooking(booking),
+                                  onPressed: () {
+                                    JWT.checkTokenValidity(context);
+                                    _deleteBooking(booking);
+                                  },
                                 ),
                               )
                             : null,
@@ -865,8 +895,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                 message: 'Восстановить бронирование',
                                 child: IconButton(
                                   icon: Icon(Icons.restore),
-                                  onPressed: () =>
-                                      _restoreBooking(booking_archive),
+                                  onPressed: () {
+                                    JWT.checkTokenValidity(context);
+                                    _restoreBooking(booking_archive);
+                                  },
                                 ),
                               )
                             : null,
@@ -879,6 +911,7 @@ class _AdminScreenState extends State<AdminScreen> {
                     children: _rentals.map((rentals) {
                       return InkWell(
                         onTap: () {
+                          JWT.checkTokenValidity(context);
                           _showRentalDetailsDialog(rentals);
                         },
                         child: ListTile(
@@ -888,8 +921,10 @@ class _AdminScreenState extends State<AdminScreen> {
                                   message: 'Отменить заявку',
                                   child: IconButton(
                                     icon: Icon(Icons.delete),
-                                    onPressed: () =>
-                                        _deleteRental(rentals['id']),
+                                    onPressed: () {
+                                      JWT.checkTokenValidity(context);
+                                      _deleteRental(rentals['id']);
+                                    },
                                   ),
                                 )
                               : null,
@@ -903,6 +938,7 @@ class _AdminScreenState extends State<AdminScreen> {
                     children: _rentals_archive.map((rental) {
                       return InkWell(
                         onTap: () {
+                          JWT.checkTokenValidity(context);
                           _showRentalDetailsDialog(rental);
                         },
                         child: ListTile(
@@ -912,8 +948,10 @@ class _AdminScreenState extends State<AdminScreen> {
                             message: 'Восстановить заявку', // Updated tooltip
                             child: IconButton(
                               icon: Icon(Icons.restore),
-                              onPressed: () =>
-                                  _restoreRental(rental['id']), // New method
+                              onPressed: () {
+                                JWT.checkTokenValidity(context);
+                                _restoreRental(rental['id']);
+                              },
                             ),
                           )
                               : null,
