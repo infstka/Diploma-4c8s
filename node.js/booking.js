@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Получить забронированное время
-router.get("/:data", (req,res) => {  
+router.get("/:data", verifyToken, (req,res) => {  
     const data = req.params.data;
     db.query("CALL get_bookings_by_date(?)", [data], (error,results,fields) => {
         if(error) throw error;
@@ -12,7 +13,7 @@ router.get("/:data", (req,res) => {
 })
 
 // Забронировать время
-router.post("/book", (req,res) => {
+router.post("/book", verifyToken, (req,res) => {
     const user_id = req.body.user_id;
     const timerange = req.body.timerange;
     const data = req.body.data;
@@ -25,7 +26,7 @@ router.post("/book", (req,res) => {
 })
 
 // Удалить бронирование
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query('CALL delete_and_archive_booking(?)', [id], (error, results, fields) => {
     if (error) throw error;
@@ -34,7 +35,7 @@ router.delete('/delete/:id', (req, res) => {
 });
 
 // Восстановить удаленное бронирование
-router.delete('/restore/:id', (req, res) => {
+router.delete('/restore/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query('CALL restore_archived_booking(?)', [id], (error, results, fields) => {
     if (error) throw error;

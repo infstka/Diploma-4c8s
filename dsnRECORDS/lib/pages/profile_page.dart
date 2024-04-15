@@ -1,3 +1,4 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/login_page.dart';
 import 'package:dsn_records/pages/profile_update_page.dart';
@@ -5,7 +6,6 @@ import 'package:dsn_records/pages/profile_history.dart';
 import 'package:dsn_records/pages/profile_rental_history.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../jwt/jwt_check.dart';
 
 void clearSharedPreferences() async {
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -59,10 +59,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            // CircleAvatar(
-            //   radius: 60, // радиус аватарки
-            //   backgroundImage: NetworkImage('URL_ВАШЕЙ_АВАТАРКИ'),
-            // ),
             SizedBox(height: 16.0),
             Text(
               userName ?? 'N/A',
@@ -192,18 +188,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(context).pop();
                             JWT.checkTokenValidity(context);
+                            Navigator.of(context).pop();
                           },
                           child: Text('Нет'),
                         ),
                         TextButton(
                           onPressed: () async {
-                            // вызываем метод очистки SharedPreferences
+                            JWT.checkTokenValidity(context);
                             clearSharedPreferences();
-                            // переходим на страницу логина
-                            Route route =
-                                MaterialPageRoute(builder: (_) => LoginPage());
+                            Route route = MaterialPageRoute(builder: (_) => LoginPage());
                             Navigator.pushReplacement(context, route);
                           },
                           child: Text('Да'),
@@ -235,18 +229,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pop();
                           JWT.checkTokenValidity(context);
+                          Navigator.of(context).pop();
                         },
                         child: Text('Отмена'),
                       ),
                       TextButton(
                         onPressed: () async {
-                          // вызываем метод deleteUser
+                          JWT.checkTokenValidity(context);
                           await REST.deleteUser(userID!);
-                          // вызываем метод очистки SharedPreferences
                           clearSharedPreferences();
-                          // переходим на страницу логина
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (_) => LoginPage()),

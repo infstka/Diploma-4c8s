@@ -1,10 +1,10 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import '../jwt/jwt_check.dart';
 
 class BookingsPage extends StatefulWidget {
   @override

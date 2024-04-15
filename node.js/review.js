@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Получить все отзывы + сортировка
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
   const sort = req.query.sort || 'date'; // по умолчанию сортировка по дате
   const sortOrder = req.query.sortOrder || 'desc'; // по умолчанию по убыванию
 
@@ -29,7 +30,7 @@ router.get('/', (req, res) => {
 });
 
 // Добавить новый отзыв
-router.post('/new', (req, res) => {
+router.post('/new', verifyToken, (req, res) => {
   const { user_id, review_datetime, review_mark, review_comment } = req.body;
   const sqlQuery = "CALL new_review(?,?,?,?)";
   db.query(sqlQuery, [user_id, review_datetime, review_mark, review_comment], (err, result) => {
@@ -42,7 +43,7 @@ router.post('/new', (req, res) => {
 });
 
 // Обновить отзыв по идентификатору
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   const { review_datetime, review_mark, review_comment } = req.body;
   const sqlQuery = "CALL update_review(?,?,?,?)";
@@ -60,7 +61,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Удалить отзыв
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   const sqlQuery = "CALL delete_review(?)";
   db.query(sqlQuery, [id], (err, result) => {

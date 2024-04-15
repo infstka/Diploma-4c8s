@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Получить услуги по категории
-router.get('/category/:category', (req, res) => {
+router.get('/category/:category', verifyToken, (req, res) => {
   const category = req.params.category;
   const query = 'CALL get_services_by_category(?)';
   
@@ -17,7 +18,7 @@ router.get('/category/:category', (req, res) => {
 });
 
 // Добавить новую услугу
-router.post('/add', (req, res) => {
+router.post('/add', verifyToken, (req, res) => {
   const { service, price, category } = req.body;
   const query = 'CALL new_service(?, ?, ?)';
   const values = [service, price, category];
@@ -32,7 +33,7 @@ router.post('/add', (req, res) => {
 });
 
 // Обновить услугу по идентификатору
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   const { service, price } = req.body;
   const query = 'CALL update_service(?, ?, ?)';
@@ -48,7 +49,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Удалить услугу по идентификатору
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   const query = 'CALL delete_service(?)';
   const values = [id];

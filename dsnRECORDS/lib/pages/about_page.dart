@@ -1,9 +1,9 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/price_page.dart';
 import 'package:dsn_records/pages/equipment_page.dart';
 import 'package:dsn_records/pages/clients_page.dart';
 import 'package:dsn_records/pages/contacts_page.dart';
-import '../jwt/jwt_check.dart';
 
 class AboutScreen extends StatefulWidget {
   @override

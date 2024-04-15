@@ -5,6 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../pages/login_page.dart';
 
 class JWT {
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   static Future<void> clearSharedPreferences() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.clear();

@@ -4,6 +4,7 @@ const db = require('./database.js');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const verifyToken = require('./user').verifyToken;
 
 // Настройка multer
 const storage = multer.diskStorage({
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Получить всех клиентов
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
   const query = 'CALL get_clients()';
   
   db.query(query, (error, results, fields) => {
@@ -31,7 +32,7 @@ router.get('/', (req, res) => {
 });
 
 // Добавить нового клиента
-router.post('/add', upload.single('clientImage'), (req, res) => {
+router.post('/add', verifyToken, upload.single('clientImage'), (req, res) => {
   const clientName = req.body.clientName;
   const clientImagePath = req.file.path.replace(/\\/g, '/');
   
@@ -48,7 +49,7 @@ router.post('/add', upload.single('clientImage'), (req, res) => {
 });
 
 // Удалить клиента
-router.delete('/:clientId', (req, res) => {
+router.delete('/:clientId', verifyToken, (req, res) => {
   const clientId = req.params.clientId;
   
   const query = 'CALL delete_client(?)';

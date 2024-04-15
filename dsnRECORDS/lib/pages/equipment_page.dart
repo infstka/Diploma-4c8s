@@ -125,7 +125,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
     _image = null;
     _isRentable = false;
     _selectedPriceId = null;
-    JWT.checkTokenValidity(context);
+    final token = await JWT.getToken();
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -215,7 +215,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                     '${price['service']} - ${price['price']}',
                                     style: TextStyle(
                                         fontSize:
-                                        14), // Adjust the font size here
+                                        14),
                                   ),
                                 );
                               }).toList(),
@@ -265,6 +265,8 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                           contentType: MediaType('image', 'jpg'),
                         ));
 
+                        request.headers['Authorization'] = 'Bearer $token';
+
                         var response = await request.send();
 
                         if (response.statusCode == 201) {
@@ -297,7 +299,6 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
   }
 
   Future<void> _showDeleteConfirmationDialog(int equipmentId) async {
-    JWT.checkTokenValidity(context);
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -419,7 +420,6 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
               .where((equipment) => equipment['eq_category'] == category)
               .toList();
 
-          // Добавляем карточку для добавления оборудования, если в категории нет оборудования
           if (categoryEquipment.isEmpty) {
             return _buildAddEquipmentCard(category);
           }
@@ -469,6 +469,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                     return GestureDetector(
                       onTap: () {
                         if (_equipmentFromREST == true && userType == 'owner') {
+                          JWT.checkTokenValidity(context);
                           _showDeleteConfirmationDialog(equipment['id']);
                         }
                       },
@@ -526,6 +527,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                     if (userType == 'owner') {
                       return GestureDetector(
                         onTap: () {
+                          JWT.checkTokenValidity(context);
                           _addEquipment(category);
                         },
                         child: Card(
@@ -569,6 +571,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           ),
           GestureDetector(
             onTap: () {
+              JWT.checkTokenValidity(context);
               _addEquipment(category);
             },
             child: Card(

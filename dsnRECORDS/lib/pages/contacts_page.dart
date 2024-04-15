@@ -69,7 +69,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
               contact['id'],
               contact['contact'],
               contact['contact_type'],
-            ]);
+            ]
+        );
       }
     });
   }
@@ -117,14 +118,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
         contactGroups.add(
           GestureDetector(
             onTap: () {
-              JWT.checkTokenValidity(context);
               if (_contactsFromREST == true && userType == 'owner') {
+                JWT.checkTokenValidity(context);
                 _showDeleteContactDialog(contact['id']);
               }
             },
             onLongPress: () {
-              JWT.checkTokenValidity(context);
               if (_contactsFromREST == true && userType == 'owner') {
+                JWT.checkTokenValidity(context);
                 _showUpdateContactDialog(contact);
               }
             },
@@ -144,8 +145,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
             _contactsFromREST == true && userType == 'owner'
                 ? InkWell(
               onTap: () {
-                JWT.checkTokenValidity(context);
                 if (_contactsFromREST == true && userType == 'owner') {
+                  JWT.checkTokenValidity(context);
                   _addNewContact(contactType);
                 }
               },
@@ -267,6 +268,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             TextButton(
               child: Text("Отмена"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
@@ -292,7 +294,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _addNewContact(String contactType) async {
-    JWT.checkTokenValidity(context);
     return showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -1,5 +1,5 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
-import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -67,7 +67,8 @@ class _PriceScreenState extends State<PriceScreen> {
               price['service'],
               price['price'],
               price['category'],
-            ]);
+            ]
+        );
       }
     });
   }
@@ -304,7 +305,6 @@ class _PriceScreenState extends State<PriceScreen> {
             TextButton(
               onPressed: () {
                 JWT.checkTokenValidity(context);
-
                 String newServiceName = serviceNameController.text;
                 String newPrice = priceController.text;
 

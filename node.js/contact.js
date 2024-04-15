@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Получить все контакты
-router.get('/', (req, res) => {
+router.get('/', verifyToken, (req, res) => {
   const query = 'CALL get_contacts()';
   
   db.query(query, (error, results, fields) => {
@@ -16,7 +17,7 @@ router.get('/', (req, res) => {
 });
 
 // Добавить новый контакт
-router.post('/add', (req, res) => {
+router.post('/add', verifyToken, (req, res) => {
   const { contact, contact_type } = req.body;
   
   const query = 'CALL new_contact(?, ?)';
@@ -32,7 +33,7 @@ router.post('/add', (req, res) => {
 });
 
 // Обновить контакт по идентификатору
-router.put('/update/:id', (req, res) => {
+router.put('/update/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   const { contact } = req.body;
   
@@ -49,7 +50,7 @@ router.put('/update/:id', (req, res) => {
 });
 
 // Удалить контакт по идентификатору
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id',  verifyToken, (req, res) => {
   const id = req.params.id;
   
   const query = 'CALL delete_contact(?)';

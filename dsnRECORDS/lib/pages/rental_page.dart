@@ -61,8 +61,8 @@ class _RentalScreenState extends State<RentalScreen> {
     if (token == null) {
       Fluttertoast.showToast(
         msg: 'Войдите для продолжения',
-        textColor: Colors.white,
-        backgroundColor: Colors.black,
+        textColor: Colors.red,
+        backgroundColor: Colors.white,
       );
       Navigator.pushReplacement(
         context,
@@ -177,8 +177,8 @@ class _RentalScreenState extends State<RentalScreen> {
                 ),
                 child: Text('ОК', style: TextStyle(color: Colors.white)),
                 onPressed: () {
-                  Navigator.of(context).pop();
                   JWT.checkTokenValidity(context);
+                  Navigator.of(context).pop();
                 },
               ),
             ),
@@ -234,8 +234,8 @@ class _RentalScreenState extends State<RentalScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
                 JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
               },
               child: Text('Отмена',
                 style: TextStyle(color: Colors.white),
@@ -268,8 +268,8 @@ class _RentalScreenState extends State<RentalScreen> {
           actions: <Widget>[
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
                 JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
               },
               child: Text('OK',
                 style: TextStyle(color: Colors.white),
@@ -423,8 +423,10 @@ class _RentalScreenState extends State<RentalScreen> {
                                 setState(() {
                                   if (value != null && eqId != null) {
                                     if (value) {
+                                      JWT.checkTokenValidity(context);
                                       selectedEquipment.add(eqId);
                                     } else {
+                                      JWT.checkTokenValidity(context);
                                       selectedEquipment.remove(eqId);
                                     }
                                   }

@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/bottom_navigation_bar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dsn_records/pages/login_page.dart';
 import 'package:dsn_records/pages/timetable_page.dart';
 import 'package:dsn_records/pages/rental_page.dart';
 import 'package:dsn_records/pages/profile_page.dart';
@@ -46,7 +44,6 @@ class HomePageState extends State<HomePage> {
 
   void onTabTapped(int index) async {
     JWT.checkTokenValidity(context);
-
     // если нажата вторая вкладка (SchedulePage) или третья вкладка (RentalScreen)
     if (!UniversalPlatform.isWeb && (index == 1 || index == 2)) {
       bool isConnected = await checkConnection();

@@ -1,9 +1,9 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_platform/universal_platform.dart';
@@ -94,7 +94,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
               review['review_datetime'],
               review['review_mark'],
               review['review_comment']
-            ]);
+            ]
+        );
       }
     });
   }
@@ -136,11 +137,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
       });
       _recreateReviewsTable();
       _loadReviews();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -225,8 +224,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           _selectedRating = 0;
           _commentController.clear();
         } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Failed to update review')));
+          print('Failed to update review');
         }
       }
     }
@@ -456,8 +454,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 children: [
                   InkWell(
                     onTap: () {
+                      JWT.checkTokenValidity(context);
                       setState(() {
-                        JWT.checkTokenValidity(context);
                         _isFormVisible = !_isFormVisible;
                       });
                     },

@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto'); 
+const fs = require('fs');
 var db = require('./database.js');
+const { generateSecretKey, loadSecretKey } = require('./generator');
 
-// Генерация случайного секретного ключа
-const secretKey = crypto.randomBytes(32).toString('hex');
+let secretKey;
+
+secretKey = loadSecretKey();
 
 // Функция для генерации JWT токена
 function generateToken(user_email) {
@@ -14,12 +16,31 @@ function generateToken(user_email) {
     return token;
 }
 
+// Middleware для проверки токена
+function verifyToken(req, res, next) {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+        const bearer = bearerHeader.split(' ');
+        const bearerToken = bearer[1];
+        jwt.verify(bearerToken, secretKey, (err, authData) => {
+            if (err) {
+                res.sendStatus(403);
+            } else {
+                req.authData = authData;
+                next();
+            }
+        });
+    } else {
+        res.sendStatus(403);
+    }
+}
+
 // Регистрация (+ проверка)
 router.route('/register').post(async (req, res) => {
     var username = req.body.username;
     var user_email = req.body.user_email;
     var user_password = req.body.user_password;
-    var hashedPassword = await bcrypt.hash(user_password, 10); // Хеширование пароля
+    var hashedPassword = await bcrypt.hash(user_password, 10); 
 
     db.query('CALL check_while_reg(?, ?, @userExists)', [username, user_email], (error, results, fields) => {
         if (error) {
@@ -101,4 +122,5 @@ router.route('/login').post((req, res) => {
 
 });
 
-module.exports = router;
+module.exports.router = router;
+module.exports.verifyToken = verifyToken;

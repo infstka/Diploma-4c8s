@@ -65,7 +65,8 @@ class _RentalsPageState extends State<RentalsPage> {
               rental['start_date'],
               rental['end_date'],
               rental['eq_names'],
-            ]);
+            ]
+        );
       }
     });
   }
@@ -97,8 +98,8 @@ class _RentalsPageState extends State<RentalsPage> {
             TextButton(
               child: Text("Нет"),
               onPressed: () {
-                Navigator.of(context).pop();
                 JWT.checkTokenValidity(context);
+                Navigator.of(context).pop();
               },
             ),
             TextButton(

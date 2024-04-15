@@ -1,3 +1,4 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dsn_records/rest/rest_api.dart';
@@ -5,8 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:universal_platform/universal_platform.dart';
-
-import '../jwt/jwt_check.dart';
 
 class AdminScreen extends StatefulWidget {
   @override
@@ -186,11 +185,9 @@ class _AdminScreenState extends State<AdminScreen> {
         _getDeletedBookings();
         _getRentals();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -209,11 +206,9 @@ class _AdminScreenState extends State<AdminScreen> {
         _getDeletedBookings();
         _getRentals();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -227,11 +222,9 @@ class _AdminScreenState extends State<AdminScreen> {
         _getUsers();
         _getBlockedUsers();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -242,11 +235,9 @@ class _AdminScreenState extends State<AdminScreen> {
         _recreateUsersTable();
         _getUsers();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -257,11 +248,9 @@ class _AdminScreenState extends State<AdminScreen> {
         _recreateUsersTable();
         _getUsers();
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(result['message'])));
+      print(result['message']);
     }
   }
 
@@ -311,7 +300,8 @@ class _AdminScreenState extends State<AdminScreen> {
               booking['data'],
               booking['timerange'],
               booking['category']
-            ]);
+            ]
+        );
       }
     });
   }
@@ -346,12 +336,14 @@ class _AdminScreenState extends State<AdminScreen> {
             TextButton(
               child: Text("Нет"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text("Да"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 await REST.deleteBooking(bookingId);
                 final index = _bookings.indexOf(booking);
                 setState(() {
@@ -417,7 +409,8 @@ class _AdminScreenState extends State<AdminScreen> {
               booking_archive['data'],
               booking_archive['timerange'],
               booking_archive['category']
-            ]);
+            ]
+        );
       }
     });
   }
@@ -447,12 +440,14 @@ class _AdminScreenState extends State<AdminScreen> {
             TextButton(
               child: Text("Нет"),
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: Text("Да"),
               onPressed: () async {
+                JWT.checkTokenValidity(context);
                 await REST.restoreBooking(bookingId);
                 final index = _bookings_archive.indexOf(booking_archive);
                 setState(() {
@@ -514,7 +509,8 @@ class _AdminScreenState extends State<AdminScreen> {
               rental['start_date'],
               rental['end_date'],
               rental['eq_names'],
-            ]);
+            ]
+        );
       }
     });
   }
@@ -544,14 +540,8 @@ class _AdminScreenState extends State<AdminScreen> {
       _recreateArchivedRentalsTable();
       _getRentals();
       _getDeletedRentals();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Заявка на аренду успешно удалена')),
-      );
     } catch (e) {
       print('Failed to delete rental: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка удаления заявки на аренду')),
-      );
     }
   }
 
@@ -582,6 +572,7 @@ class _AdminScreenState extends State<AdminScreen> {
           actions: [
             TextButton(
               onPressed: () {
+                JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
               child: Text('Закрыть'),
@@ -635,7 +626,8 @@ class _AdminScreenState extends State<AdminScreen> {
               rental['start_date'],
               rental['end_date'],
               rental['eq_names'],
-            ]);
+            ]
+        );
       }
     });
   }
@@ -666,19 +658,10 @@ class _AdminScreenState extends State<AdminScreen> {
         _recreateRentalsTable();
         _getDeletedRentals();
         _getRentals();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Заявка на аренду успешно восстановлена')),
-        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка восстановления заявки на аренду')),
-        );
       }
     } catch (e) {
       print('Failed to restore rental: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка восстановления заявки на аренду')),
-      );
     }
   }
 
@@ -934,7 +917,7 @@ class _AdminScreenState extends State<AdminScreen> {
                   );
                 } else if (index == 5) {
                   return ExpansionTile(
-                    title: Text('Отмененные заявки на аренду'), // New title
+                    title: Text('Отмененные заявки на аренду'),
                     children: _rentals_archive.map((rental) {
                       return InkWell(
                         onTap: () {
@@ -945,7 +928,7 @@ class _AdminScreenState extends State<AdminScreen> {
                           title: Text('Заявка №${rental['id']}'),
                           trailing: _dataFromREST == true
                               ? Tooltip(
-                            message: 'Восстановить заявку', // Updated tooltip
+                            message: 'Восстановить заявку',
                             child: IconButton(
                               icon: Icon(Icons.restore),
                               onPressed: () {

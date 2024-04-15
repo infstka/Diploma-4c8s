@@ -1,8 +1,8 @@
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dsn_records/widgets/update_profile_form_fields_widget.dart';
-import '../jwt/jwt_check.dart';
 import 'login_page.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -37,7 +37,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   final _userEmailController = TextEditingController();
 
   Future<void> _saveData() async {
-    JWT.checkTokenValidity(context);
     if (_formKey.currentState!.validate()) {
       final response = await REST.updateUser({
         'id': userID.toString(),
@@ -66,9 +65,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
           },
         );
       } else {
-        // вызываем метод очистки SharedPreferences
         clearSharedPreferences();
-        // переходим на страницу логина
         Route route = MaterialPageRoute(builder: (_) => LoginPage());
         Navigator.pushReplacement(context, route);
       }

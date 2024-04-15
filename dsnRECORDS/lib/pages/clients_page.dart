@@ -68,7 +68,8 @@ class _ClientsScreenState extends State<ClientsScreen> {
               client['id'],
               client['client_name'],
               defaultImagePath,
-            ]);
+            ]
+        );
       }
     });
   }
@@ -94,7 +95,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
   Uint8List? _imageBytes;
 
   Future<void> _addClient() async {
-    JWT.checkTokenValidity(context);
+    final token = await JWT.getToken();
     await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -159,21 +160,17 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         contentType: MediaType('image', _image!.path.split('.').last),
                       ));
 
+                    request.headers['Authorization'] = 'Bearer $token';
+
                     var response = await request.send();
 
                     if (response.statusCode == 201) {
                       await getClients();
                     } else {
                       print('Failed to add client');
-                      throw Exception('Failed to add client');
                     }
                   } catch (error) {
                     print('Error adding client: $error');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Failed to add client'),
-                      ),
-                    );
                   }
                 }
               },
@@ -288,12 +285,11 @@ class _ClientsScreenState extends State<ClientsScreen> {
           if (index < clientData.length) {
             return GestureDetector(
               onTap: () {
-                JWT.checkTokenValidity(context);
                 if (_clientsFromREST == true && userType == 'owner') {
+                  JWT.checkTokenValidity(context);
                   _showDeleteConfirmationDialog(clientData[index]['id']);
                 }
               },
-              onLongPress: () {},
               child: Card(
                 elevation: 0,
                 margin: EdgeInsets.only(top: 50.0, left: 25.0, right: 25.0),
@@ -330,6 +326,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
             );
           } else {
             if (_clientsFromREST == true && userType == 'owner') {
+              JWT.checkTokenValidity(context);
               return GestureDetector(
                 onTap: _addClient,
                 child: Card(

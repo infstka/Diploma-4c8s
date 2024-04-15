@@ -1,9 +1,9 @@
 //import 'dart:async';
+import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:dsn_records/widgets/time_slot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../jwt/jwt_check.dart';
 import '../rest/rest_api.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -200,8 +200,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   future: Future.value(timeSlots),
                   builder: (context, snapshot) {
                     Future<void> checkBookedTimeSlots() async {
-                      List<TimeSlot> bookedSlots = await REST.fetchData(
-                          formattedDate); // получить записи из базы данных
+                      List<TimeSlot> bookedSlots = await REST.fetchData(formattedDate);
                       setState(() {
                         snapshot.data!.forEach((timeSlot) {
                           bool isBooked = bookedSlots.any((bookedSlot) =>
@@ -259,14 +258,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                       onPressed: () {
                                                         JWT.checkTokenValidity(context);
                                                         setState(() {
-                                                          if (selectedTime ==
-                                                              timeSlot
-                                                                  .timerange) {
+                                                          if (selectedTime == timeSlot.timerange) {
                                                             selectedTime = "";
                                                           } else {
-                                                            selectedTime =
-                                                                timeSlot
-                                                                    .timerange;
+                                                            selectedTime = timeSlot.timerange;
                                                           }
                                                         });
                                                       },
@@ -293,15 +288,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                           onPressed: () {
                                                             JWT.checkTokenValidity(context);
                                                             setState(() {
-                                                              if (selectedTime ==
-                                                                  timeSlot
-                                                                      .timerange) {
-                                                                selectedTime =
-                                                                    "";
+                                                              if (selectedTime == timeSlot.timerange) {
+                                                                selectedTime = "";
                                                               } else {
-                                                                selectedTime =
-                                                                    timeSlot
-                                                                        .timerange;
+                                                                selectedTime = timeSlot.timerange;
                                                               }
                                                             });
                                                           },
@@ -320,15 +310,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                                           onPressed: () {
                                                             JWT.checkTokenValidity(context);
                                                             setState(() {
-                                                              if (selectedTime ==
-                                                                  timeSlot
-                                                                      .timerange) {
-                                                                selectedTime =
-                                                                    "";
+                                                              if (selectedTime == timeSlot.timerange) {
+                                                                selectedTime = "";
                                                               } else {
-                                                                selectedTime =
-                                                                    timeSlot
-                                                                        .timerange;
+                                                                selectedTime = timeSlot.timerange;
                                                               }
                                                             });
                                                           },
@@ -356,7 +341,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
               ElevatedButton(
                 onPressed: selectedTime != "" ? () async {
-                  JWT.checkTokenValidity(context);
                   String? selectedCategory = await _showCategoryDialog();
 
                         if (selectedCategory != null) {

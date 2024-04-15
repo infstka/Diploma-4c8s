@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Получить свободное оборудование для аренды на выбранный промежуток дат
-router.get('/availableEquipment/:startDate/:endDate', (req, res) => {
+router.get('/availableEquipment/:startDate/:endDate', verifyToken, (req, res) => {
   const { startDate, endDate } = req.params;
   db.query(
     'CALL get_available_equipment(?, ?)',
@@ -19,7 +20,7 @@ router.get('/availableEquipment/:startDate/:endDate', (req, res) => {
 });
 
 // Создать новую заявку на аренду
-router.post('/add', (req, res) => {
+router.post('/add', verifyToken, (req, res) => {
   const { start_date, end_date, fullname, phone, user_id, eq_ids } = req.body;
   
   const eq_ids_str = eq_ids.join(',');
@@ -37,7 +38,7 @@ router.post('/add', (req, res) => {
 });
 
 // Удалить заявку на аренду
-router.delete('/delete/:id', (req, res) => {
+router.delete('/delete/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query('CALL delete_and_archive_rental(?)', [id], (error, results, fields) => {
     if (error) {
@@ -49,7 +50,7 @@ router.delete('/delete/:id', (req, res) => {
 });
 
 // Восстановить заявку на аренду
-router.delete('/restore/:id', (req, res) => {
+router.delete('/restore/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query('CALL restore_archived_rental(?)', [id], (error, results, fields) => {
     if (error) throw error;

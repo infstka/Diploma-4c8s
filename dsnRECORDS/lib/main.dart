@@ -2,9 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/home_page.dart';
 import 'package:dsn_records/pages/login_page.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:dcdg/dcdg.dart';
+
+import 'jwt/jwt_check.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +19,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,7 +46,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
-  @override
   void initState() {
     super.initState();
 
@@ -59,22 +61,39 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
     _animationController.forward();
 
-    isLogin();
+    // После завершения анимации, запускаем проверку токена.
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        isLogin();
+      }
+    });
   }
 
   void isLogin() async {
     _sharedPreferences = await SharedPreferences.getInstance();
+    String? token = _sharedPreferences.getString('token');
 
-    Timer(Duration(seconds: 7), () {
-      if (_sharedPreferences.getInt('id') == null &&
-          _sharedPreferences.getString('user_email') == null) {
-        Route route = MaterialPageRoute(builder: (_) => LoginPage());
-        Navigator.pushReplacement(context, route);
-      } else {
-        Route route = MaterialPageRoute(builder: (_) => HomePage());
-        Navigator.pushReplacement(context, route);
-      }
-    });
+    if (token == null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
+      return;
+    }
+
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+    int expiryTimeInSeconds = decodedToken['exp'];
+    DateTime expiryDateTime = DateTime.fromMillisecondsSinceEpoch(expiryTimeInSeconds * 1000);
+
+    if (DateTime.now().isAfter(expiryDateTime)) {
+      await JWT.clearSharedPreferences();
+      Fluttertoast.showToast(
+        msg: 'Сессия истекла. Войдите снова',
+        textColor: Colors.red,
+        backgroundColor: Colors.white,
+      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => LoginPage()));
+      return;
+    }
+
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
   }
 
   @override

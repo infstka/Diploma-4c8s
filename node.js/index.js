@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use('/files', express.static('files'));
 
-const userRouter = require('./user');
+const userRouter = require('./user').router;
 app.use('/user', userRouter);
 
 const bookingRouter = require('./booking');

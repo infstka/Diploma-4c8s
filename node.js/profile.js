@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const db = require('./database.js');
+const verifyToken = require('./user').verifyToken;
 
 // Обновление профиля пользователя
-router.put('/update/:id', async (req, res) => {
+router.put('/update/:id', verifyToken, async (req, res) => {
   const id = req.params.id;
   const { username, user_password, user_email } = req.body;
   let hashedPassword = user_password; 
@@ -37,7 +38,7 @@ router.put('/update/:id', async (req, res) => {
 });
 
 // Получить все бронирования для определенного пользователя
-router.get('/history/bookings/:id', (req, res) => {
+router.get('/history/bookings/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query(`CALL get_booking_history(?)`, 
            [id], (error, results, fields) => {
@@ -47,7 +48,7 @@ router.get('/history/bookings/:id', (req, res) => {
 });
 
 // Получить все аренды для определенного пользователя
-router.get('/history/rentals/:id', (req, res) => {
+router.get('/history/rentals/:id', verifyToken, (req, res) => {
   const id = req.params.id;
   db.query('CALL get_rentals_history(?)', [id], (error, results, fields) => {
     if (error) {
