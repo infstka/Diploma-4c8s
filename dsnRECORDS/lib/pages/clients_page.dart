@@ -129,7 +129,15 @@ class _ClientsScreenState extends State<ClientsScreen> {
                       });
                     }
                   },
-                  child: Text('Выбрать изображение'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.black,
+                  ),
+                  child: Text(
+                    'Выбрать изображение',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -140,7 +148,12 @@ class _ClientsScreenState extends State<ClientsScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Отмена'),
+              child: Text(
+                'Отмена',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -174,7 +187,12 @@ class _ClientsScreenState extends State<ClientsScreen> {
                   }
                 }
               },
-              child: Text('Добавить'),
+              child: Text(
+                'Добавить',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
             ),
           ],
         );
@@ -208,14 +226,24 @@ class _ClientsScreenState extends State<ClientsScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Отмена'),
+              child: Text(
+                'Отмена',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Удалить'),
+              child: Text(
+                'Удалить',
+                style: TextStyle(
+                color: Colors.black,
+                ),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
@@ -276,9 +304,10 @@ class _ClientsScreenState extends State<ClientsScreen> {
       ),
       body: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
-          crossAxisSpacing: 10.0,
-          childAspectRatio: 2,
+          crossAxisCount: MediaQuery.of(context).size.width > 600 ? 3 : 2,
+          crossAxisSpacing: 1.0,
+          mainAxisSpacing: 1.0,
+          childAspectRatio: MediaQuery.of(context).size.width > 600 ? 0.9 : 0.7,
         ),
         itemCount: clientData.length + (userType == 'owner' ? 1 : 0),
         itemBuilder: (BuildContext context, int index) {
@@ -292,9 +321,10 @@ class _ClientsScreenState extends State<ClientsScreen> {
               },
               child: Card(
                 elevation: 0,
-                margin: EdgeInsets.only(top: 50.0, left: 25.0, right: 25.0),
-                color: Colors.transparent,
+                margin: EdgeInsets.only(top: 10.0, left: 5.0, right: 5.0),
+                color: Colors.white,
                 child: Container(
+                  padding: EdgeInsets.all(10),
                   color: Colors.transparent,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -315,7 +345,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                       Text(
                         clientData[index]['client_name'],
                         style: TextStyle(
-                          fontSize: 22.0,
+                          fontSize: MediaQuery.of(context).size.width > 600 ? 28.0 : 22.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -331,7 +361,6 @@ class _ClientsScreenState extends State<ClientsScreen> {
                 onTap: _addClient,
                 child: Card(
                   elevation: 0,
-                  margin: EdgeInsets.only(top: 50.0, left: 25.0, right: 25.0),
                   color: Colors.transparent,
                   child: Container(
                     color: Colors.transparent,
@@ -346,8 +375,9 @@ class _ClientsScreenState extends State<ClientsScreen> {
                         SizedBox(height: 10.0),
                         Text(
                           'Добавить нового клиента',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 22.0,
+                            fontSize: MediaQuery.of(context).size.width > 600 ? 28.0 : 20.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),

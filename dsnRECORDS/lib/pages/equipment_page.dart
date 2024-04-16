@@ -214,8 +214,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                   child: Text(
                                     '${price['service']} - ${price['price']}',
                                     style: TextStyle(
-                                        fontSize:
-                                        14),
+                                        fontSize: 14),
                                   ),
                                 );
                               }).toList(),
@@ -351,37 +350,16 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
-            MediaQuery
-                .of(context)
-                .size
-                .width > 600 ? 100.0 : 56.0),
+            MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0),
         child: AppBar(
           backgroundColor: Colors.black,
           flexibleSpace: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width > 600
-                ? MediaQuery
-                .of(context)
-                .size
-                .width * 0.5
-                : MediaQuery
-                .of(context)
-                .size
-                .width * 0.8,
-            height: MediaQuery
-                .of(context)
-                .size
-                .height > 600
-                ? MediaQuery
-                .of(context)
-                .size
-                .height * 0.7
-                : MediaQuery
-                .of(context)
-                .size
-                .height * 0.5,
+            width: MediaQuery.of(context).size.width > 600 ?
+            MediaQuery.of(context).size.width * 0.5 :
+            MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height > 600 ?
+            MediaQuery.of(context).size.height * 0.7 :
+            MediaQuery.of(context).size.height * 0.5,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/text black.png'),
@@ -439,25 +417,12 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
               ),
               GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery
-                      .of(context)
-                      .size
-                      .width > 1200
-                      ? 5
-                      : MediaQuery
-                      .of(context)
-                      .size
-                      .width > 800
-                      ? 4
-                      : MediaQuery
-                      .of(context)
-                      .size
-                      .width > 600
-                      ? 3
-                      : 1,
+                  crossAxisCount: MediaQuery.of(context).size.width > 1200 ? 5 :
+                  MediaQuery.of(context).size.width > 800 ? 4 :
+                  MediaQuery.of(context).size.width > 600 ? 3 : 2,
                   crossAxisSpacing: 10.0,
                   mainAxisSpacing: 10.0,
-                  childAspectRatio: 0.8,
+                  childAspectRatio: MediaQuery.of(context).size.width > 600 ? 0.7 : 0.6,
                 ),
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -476,20 +441,19 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                       child: Card(
                         color: Colors.black,
                         child: SizedBox(
-                          height: 200,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: 1.5,
-                                child: _equipmentFromREST
-                                    ? Image.network(
-                                  '${REST.BASE_URL}/${equipment['eq_image_path']}',
-                                  fit: BoxFit.cover,
-                                )
-                                    : Image.asset(
-                                  equipment['eq_image_path'],
-                                  fit: BoxFit.cover,
+                            children: <Widget>[
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: _equipmentFromREST
+                                          ? NetworkImage('${REST.BASE_URL}/${equipment['eq_image_path']}')
+                                          : AssetImage(equipment['eq_image_path'],) as ImageProvider,
+                                      fit: BoxFit.fitWidth,
+                                    ),
+                                  ),
                                 ),
                               ),
                               SizedBox(height: 8.0),
@@ -501,23 +465,32 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                   fontSize: 16.0,
                                 ),
                               ),
-                              SizedBox(height: 4.0),
+                              if (equipment['is_rentable'] == 0)
+                                SizedBox(height: 8.0),
                               if (equipment['is_rentable'] == 1)
-                                Text(
-                                  'Доступно для аренды',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.0,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    'Доступно для аренды',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                    ),
                                   ),
                                 ),
+                              if (equipment['is_rentable'] == 1)
+                                SizedBox(height: 2.0),
                               if (equipment['is_rentable'] == 1)
                                 Text(
                                   'Цена: ${equipment['price']}',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 14.0,
+                                    fontSize: 16.0,
                                   ),
                                 ),
+                              if (equipment['is_rentable'] == 1)
+                                SizedBox(height: 5.0),
                             ],
                           ),
                         ),

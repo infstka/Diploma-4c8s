@@ -228,98 +228,79 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               label: Container(
                                   width: //MediaQuery.of(context).size.width * 0.5,
                                       MediaQuery.of(context).size.width > 600
-                                          ? MediaQuery.of(context).size.width *
-                                              0.2
-                                          : MediaQuery.of(context).size.width *
-                                              0.5,
+                                          ? MediaQuery.of(context).size.width * 0.2
+                                          : MediaQuery.of(context).size.width * 0.5,
                                   child: Text('Статус')),
                             ),
                           ],
-                          rows: snapshot.data!
-                              .map((timeSlot) => DataRow(
+                          rows: snapshot.data!.map((timeSlot) => DataRow(
                                     cells: [
                                       DataCell(Text("${timeSlot.timerange}")),
-                                      MediaQuery.of(context).size.width > 600
-                                          ? DataCell(
-                                              timeSlot.status == 0
-                                                  ? Text("Занято")
-                                                  : ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        primary: Colors.green,
-                                                        minimumSize: Size(
-                                                            MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.2,
-                                                            40),
-                                                      ),
-                                                      onPressed: () {
-                                                        JWT.checkTokenValidity(context);
-                                                        setState(() {
-                                                          if (selectedTime == timeSlot.timerange) {
-                                                            selectedTime = "";
-                                                          } else {
-                                                            selectedTime = timeSlot.timerange;
-                                                          }
-                                                        });
-                                                      },
-                                                      child: Text("Свободно")),
-                                            )
-                                          : MediaQuery.of(context).size.width >
-                                                  400
-                                              ? DataCell(
-                                                  timeSlot.status == 0
-                                                      ? Text("Занято")
-                                                      : ElevatedButton(
-                                                          style: ElevatedButton
-                                                              .styleFrom(
-                                                            primary:
-                                                                Colors.green,
-                                                            minimumSize: Size(
-                                                                MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.3,
-                                                                40),
-                                                          ),
-                                                          onPressed: () {
-                                                            JWT.checkTokenValidity(context);
-                                                            setState(() {
-                                                              if (selectedTime == timeSlot.timerange) {
-                                                                selectedTime = "";
-                                                              } else {
-                                                                selectedTime = timeSlot.timerange;
-                                                              }
-                                                            });
-                                                          },
-                                                          child:
-                                                              Text("Свободно")),
-                                                )
-                                              : DataCell(
-                                                  timeSlot.status == 0
-                                                      ? Text("Занято")
-                                                      : ElevatedButton(
-                                                          style: ButtonStyle(
-                                                              backgroundColor:
-                                                                  MaterialStateProperty
-                                                                      .all(Colors
-                                                                          .green)),
-                                                          onPressed: () {
-                                                            JWT.checkTokenValidity(context);
-                                                            setState(() {
-                                                              if (selectedTime == timeSlot.timerange) {
-                                                                selectedTime = "";
-                                                              } else {
-                                                                selectedTime = timeSlot.timerange;
-                                                              }
-                                                            });
-                                                          },
-                                                          child:
-                                                              Text("Свободно")),
-                                                ),
+                                      MediaQuery.of(context).size.width > 600 ?
+                                      DataCell(
+                                        timeSlot.status == 0 ?
+                                        Text("Занято") :
+                                        ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.green,
+                                              minimumSize:
+                                              Size(MediaQuery.of(context).size.width * 0.2, 40),
+                                            ),
+                                            onPressed: () {
+                                              JWT.checkTokenValidity(context);
+                                              setState(() {
+                                                if (selectedTime == timeSlot.timerange) {
+                                                  selectedTime = "";
+                                                } else {
+                                                  selectedTime = timeSlot.timerange;
+                                                }
+                                              });
+                                              },
+                                            child: Text("Свободно")
+                                        ),
+                                      ) : MediaQuery.of(context).size.width > 400 ?
+                                      DataCell(
+                                        timeSlot.status == 0 ?
+                                        Text("Занято") :
+                                        ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.green,
+                                              minimumSize: Size(MediaQuery.of(context).size.width * 0.3, 40),
+                                            ),
+                                            onPressed: () {
+                                              JWT.checkTokenValidity(context);
+                                              setState(() {
+                                                if (selectedTime == timeSlot.timerange) {
+                                                  selectedTime = "";
+                                                } else {
+                                                  selectedTime = timeSlot.timerange;
+                                                }
+                                              });
+                                              },
+                                            child:
+                                            Text("Свободно")
+                                        ),
+                                      ) :
+                                      DataCell(
+                                        timeSlot.status == 0 ?
+                                        Text("Занято") :
+                                        ElevatedButton(
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                MaterialStateProperty.all(Colors.green)),
+                                            onPressed: () {
+                                              JWT.checkTokenValidity(context);
+                                              setState(() {
+                                                if (selectedTime == timeSlot.timerange) {
+                                                  selectedTime = "";
+                                                } else {
+                                                  selectedTime = timeSlot.timerange;
+                                                }
+                                              });
+                                              },
+                                            child: Text("Свободно")
+                                        ),
+                                      ),
                                     ],
                                   ))
                               .toList(),

@@ -158,14 +158,20 @@ class _BookingsPageState extends State<BookingsPage> {
           content: Text("Вы действительно хотите отменить забронированное время?"),
           actions: <Widget>[
             TextButton(
-              child: Text("Нет"),
+              child: Text(
+                "Нет",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Да"),
+              child: Text(
+                "Да",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () async {
                 JWT.checkTokenValidity(context);
                 await REST.deleteBooking(booking['id']);

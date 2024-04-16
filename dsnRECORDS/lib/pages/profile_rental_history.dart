@@ -96,14 +96,20 @@ class _RentalsPageState extends State<RentalsPage> {
           content: Text("Вы действительно хотите удалить эту заявку?"),
           actions: <Widget>[
             TextButton(
-              child: Text("Нет"),
+              child: Text(
+                "Нет",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Да"),
+              child: Text(
+                "Да",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () async {
                 JWT.checkTokenValidity(context);
                 try {
@@ -155,7 +161,10 @@ class _RentalsPageState extends State<RentalsPage> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Закрыть'),
+              child: Text(
+                'Закрыть',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             if (_userRentalsFromREST == true && _isDeletable(rental['start_date']))
               TextButton(
@@ -163,7 +172,10 @@ class _RentalsPageState extends State<RentalsPage> {
                   JWT.checkTokenValidity(context);
                   _deleteRental(_rentals.indexOf(rental));
                 },
-                child: Text('Удалить'),
+                child: Text(
+                  'Удалить',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
           ],
         );

@@ -190,18 +190,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
             actions: [
               TextButton(
-                child: Text('Отмена'),
+                child: Text(
+                  'Отмена',
+                  style: TextStyle(color: Colors.black),
+                ),
                 onPressed: () {
                   JWT.checkTokenValidity(context);
                   Navigator.pop(context);
                 },
               ),
               ElevatedButton(
-                child: Text('Сохранить'),
+                child: Text(
+                  'Сохранить',
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () {
                   JWT.checkTokenValidity(context);
                   Navigator.pop(context, _commentController.text);
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black,
+                ),
               ),
             ],
           );
@@ -509,7 +518,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: _selectedRating == 0 ? null : _addReview,
-                      child: Text('Добавить отзыв'),
+                      child: Text(
+                        'Добавить отзыв',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black,
+                      ),
                     ),
                   ],
                 ],
