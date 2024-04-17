@@ -90,7 +90,8 @@ class HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
-          MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0,
+          //56.0
+          MediaQuery.of(context).size.width > 600 ? 100.0 : 76.0,
         ),
         child: AppBar(
           backgroundColor: Colors.black,
@@ -103,7 +104,7 @@ class HomePageState extends State<HomePage> {
                 : MediaQuery.of(context).size.height * 0.5,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/text black.png'),
+                image: AssetImage('assets/images/text_black.png'),
                 fit: BoxFit.contain,
               ),
             ),
@@ -185,6 +186,34 @@ class HomeScreen extends StatelessWidget {
     'assets/images/5.jpg',
     'assets/images/6.jpg',
     'assets/images/7.jpg',
+    'assets/images/8.jpg',
+    'assets/images/9.jpg',
+    'assets/images/10.jpg',
+    'assets/images/11.jpg',
+    'assets/images/12.jpg',
+    'assets/images/13.jpg',
+    'assets/images/14.jpg',
+    'assets/images/15.jpg',
+    'assets/images/16.jpg',
+    'assets/images/17.jpg',
+    'assets/images/18.jpg',
+    'assets/images/1.jpeg',
+    'assets/images/2.jpeg',
+    'assets/images/3.jpeg',
+    'assets/images/4.jpeg',
+    'assets/images/5.jpeg',
+    'assets/images/6.jpeg',
+    'assets/images/7.jpeg',
+    'assets/images/8.jpeg',
+    'assets/images/9.jpeg',
+    'assets/images/10.jpeg',
+    'assets/images/11.jpeg',
+    'assets/images/12.jpeg',
+    'assets/images/13.jpeg',
+    'assets/images/14.jpeg',
+    'assets/images/1.png',
+    'assets/images/2.png',
+    'assets/images/3.png',
   ];
 
   @override
@@ -220,23 +249,22 @@ class HomeScreen extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             child: CarouselSlider(
               options: CarouselOptions(
-                height: 400,
+                height: MediaQuery.of(context).size.width > 600 ? MediaQuery.of(context).size.width * 0.5 : MediaQuery.of(context).size.width * 1,
                 autoPlay: true,
                 autoPlayInterval: Duration(seconds: 5),
                 autoPlayCurve: Curves.fastOutSlowIn,
                 enlargeCenterPage: true,
+                viewportFraction: MediaQuery.of(context).size.width > 600 ? 0.5 : 0.8,
               ),
-              items: _imagePaths
-                  .map((path) => Image.asset(
-                path,
-                width: MediaQuery.of(context).size.width > 600
-                    ? MediaQuery.of(context).size.width * 0.5
-                    : MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height > 600
-                    ? MediaQuery.of(context).size.height * 0.5
-                    : MediaQuery.of(context).size.height * 0.5,
-              ))
-                  .toList(),
+              items: _imagePaths.map((path) {
+                return Container(
+                  width: MediaQuery.of(context).size.width > 600 ? MediaQuery.of(context).size.width * 0.5 : MediaQuery.of(context).size.width * 1,
+                  child: Image.asset(
+                    path,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],

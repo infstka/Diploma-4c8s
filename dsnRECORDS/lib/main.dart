@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      "assets/images/dsnrecords logo black no bg.png",
+                      "assets/images/dsnrecords_logo_black_no_bg.png",
                       width: MediaQuery.of(context).size.width > 600
                           ? MediaQuery.of(context).size.width * 0.5
                           : MediaQuery.of(context).size.width * 0.8,

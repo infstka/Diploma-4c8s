@@ -77,7 +77,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(
-          MediaQuery.of(context).size.width > 600 ? 100.0 : 56.0,
+          //56.0
+          MediaQuery.of(context).size.width > 600 ? 100.0 : 76.0,
         ),
         child: AppBar(
           backgroundColor: Colors.black,
@@ -90,12 +91,12 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 : MediaQuery.of(context).size.height * 0.5,
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/text black.png'),
+                image: AssetImage('assets/images/text_black.png'),
                 fit: BoxFit.contain,
               ),
             ),
             alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 20.0),
+            padding: EdgeInsets.only(top:20.0, left: 20.0),
             child: InkWell(
               onTap: () {
                 JWT.checkTokenValidity(context);

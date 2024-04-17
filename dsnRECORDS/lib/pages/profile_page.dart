@@ -2,7 +2,7 @@ import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/pages/login_page.dart';
 import 'package:dsn_records/pages/profile_update_page.dart';
-import 'package:dsn_records/pages/profile_history.dart';
+import 'package:dsn_records/pages/profile_booking_history.dart';
 import 'package:dsn_records/pages/profile_rental_history.dart';
 import 'package:dsn_records/rest/rest_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';

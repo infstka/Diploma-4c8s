@@ -45,7 +45,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 Ink(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/images/1.jpg"),
+                      image: AssetImage("assets/images/5.jpg"),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.6),
@@ -88,7 +88,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 Ink(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/images/2.jpg"),
+                      image: AssetImage("assets/images/8.jpeg"),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.6),
@@ -131,7 +131,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 Ink(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/images/3.jpg"),
+                      image: AssetImage("assets/images/2.jpeg"),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.6),
@@ -174,7 +174,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 Ink(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/images/5.jpg"),
+                      image: AssetImage("assets/images/10.jpg"),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.6),

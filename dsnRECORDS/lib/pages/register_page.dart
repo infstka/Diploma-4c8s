@@ -56,13 +56,13 @@ class RegisterPageState extends State<RegisterPage> {
                         alignment: Alignment.center,
                         child: MediaQuery.of(context).size.width > 768
                             ? Image.asset(
-                          "assets/images/dsnrecords logo black no bg.png",
+                          "assets/images/dsnrecords_logo_black_no_bg.png",
                           fit: BoxFit.contain,
                           width: MediaQuery.of(context).size.width * 0.4,
                           height: MediaQuery.of(context).size.height * 0.4,
                         )
                             : Image.asset(
-                          "assets/images/dsnrecords logo black no bg.png",
+                          "assets/images/dsnrecords_logo_black_no_bg.png",
                           fit: BoxFit.contain,
                           width: MediaQuery.of(context).size.width * 0.7,
                           height: MediaQuery.of(context).size.height * 0.3,
