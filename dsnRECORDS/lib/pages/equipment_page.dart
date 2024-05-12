@@ -465,6 +465,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16.0,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                               if (equipment['is_rentable'] == 0)
                                 SizedBox(height: 8.0),
