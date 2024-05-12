@@ -6,7 +6,7 @@ truncate table bookings;
 truncate table bookings_archive;
 truncate table reviews;
 truncate table clients;
-truncate table equipments;
+truncate table equipment;
 truncate table prices;
 truncate table rentals;
 truncate table rental_equipment;

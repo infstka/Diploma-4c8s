@@ -238,10 +238,11 @@ class HomeScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 20),
                 Text(
-                  'dsnrecords is a premier recording studio that offers top-quality audio production services for musicians, bands, and other clients. Our state-of-the-art facilities and experienced team of sound engineers ensure that every project we work on sounds amazing. Whether you need to record a full-length album, a single, or a podcast, we have the skills and expertise to make your vision a reality.',
+                  '\u2003Мы - студия звукозаписи, созданная белорусской инди-рок группой dysania!. Наша миссия - помочь музыкантам воплотить их творческие идеи в жизнь. Мы предлагаем услуги по звукозаписи, организации репетиций и аренде оборудования. Наша команда профессионалов готова работать над вашим проектом, будь то полноценный альбом, сингл или подкаст. Вместе мы сможем создать нечто уникальное. Присоединяйтесь к нам и воплотите свою музыкальную мечту в реальность!',
                   style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.justify,
                 ),
+                SizedBox(height: 10),
               ],
             ),
           ),

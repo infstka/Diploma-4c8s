@@ -345,7 +345,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> categories = ['Репетиции', 'Звукозапись', 'Аренда'];
+    final List<String> categories = ['Гитарное оборудование', 'Басовое оборудование', 'Барабаны', 'Микрофоны', 'Мониторинг', 'Железо'];
 
     return Scaffold(
       appBar: PreferredSize(

@@ -28,11 +28,13 @@ class _AboutScreenState extends State<AboutScreen> {
             child: Column(
               children: [
                 SizedBox(height: 16.0),
-                //SizedBox(height: 20),
                 Text(
-                  'dsnrecords is a premier recording studio that offers top-quality audio production services for musicians, bands, and other clients. Our state-of-the-art facilities and experienced team of sound engineers ensure that every project we work on sounds amazing. Whether you need to record a full-length album, a single, or a podcast, we have the skills and expertise to make your vision a reality.',
+                      '\u2003Наши страницы с ценами предлагают подробный прейскурант наших услуг, включая звукозапись, репетиции и аренду оборудования.\n'
+                      '\u2003На вкладке оборудования вы найдете информацию о нашем современном оборудовании, часть из которого доступно для аренды.\n'
+                      '\u2003На странице "Наши клиенты" вы можете узнать больше о музыкантах, которые уже воспользовались нашими услугами.\n'
+                      '\u2003Если у вас есть вопросы, свяжитесь с нами. Наши контакты можно найти на странице контактов.',
                   style: TextStyle(fontSize: 16),
-                  textAlign: TextAlign.center,
+                  textAlign: TextAlign.justify,
                 ),
               ],
             ),

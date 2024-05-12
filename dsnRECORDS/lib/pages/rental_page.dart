@@ -164,8 +164,23 @@ class _RentalScreenState extends State<RentalScreen> {
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text(
-                    'бубубу бебебе условия аренды еще что-то ляляляляляляляляляля правила использования не красть оборудование отвечть на звонки предоплата там и что еще'),
+                Text.rich(
+                    TextSpan(
+                      text: '\u2003Благодарим вас за выбор dsn RECORDS! для аренды оборудования. Мы ценим ваше доверие и стремимся предоставить вам лучшее оборудование для ваших музыкальных потребностей. Пожалуйста, ознакомьтесь с нашими условиями аренды:\n\n', style: TextStyle(fontSize: 16),
+                      children: <TextSpan>[
+                        TextSpan(text: '1.Ответственность\n ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        TextSpan(text: 'Арендатор несет полную ответственность за взятое в аренду оборудование во время ее действия. Любой нанесенный ущерб или потеря оборудования обязательно будут взысканы с арендатора.\n\n', style: TextStyle(fontSize: 16)),
+                        TextSpan(text: '2.Коммуникация\n ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        TextSpan(text: 'Арендатор обязан отвечать на звонки и сообщения от администрации dsn RECORDS! в течение срока аренды.\n\n', style: TextStyle(fontSize: 16)),
+                        TextSpan(text: '3.Оплата\n ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        TextSpan(text: '80% от общей стоимости цены аренды оборудования оплачивается во время получения оборудования, оставшиеся 20% - во время возврата оборудования.\n\n', style: TextStyle(fontSize: 16)),
+                        TextSpan(text: '4.Возврат\n ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        TextSpan(text: 'Оборудование должно быть возвращено в том же состоянии, в котором оно было получено. В случае повреждения или потери оборудования, арендатор обязан возместить полную стоимость оборудования.\n\n', style: TextStyle(fontSize: 16)),
+                        TextSpan(text: '\u2003Мы рады, что вы выбрали dsn RECORDS! и надеемся, что наше оборудование поможет вам воплотить ваши музыкальные идеи в жизнь.', style: TextStyle(fontSize: 16))
+                      ],
+                    ),
+                    textAlign: TextAlign.justify
+                ),
               ],
             ),
           ),
@@ -301,11 +316,10 @@ class _RentalScreenState extends State<RentalScreen> {
           children: [
             SizedBox(height: 16.0),
             Text(
-              'dsnrecords is a premier recording studio that offers top-quality audio production services for musicians, bands, and other clients. Our state-of-the-art facilities and experienced team of sound engineers ensure that every project we work on sounds amazing. Whether you need to record a full-length album, a single, or a podcast, we have the skills and expertise to make your vision a reality.',
+              '\u2003В dsn RECORDS мы ценим ваше творчество и предлагаем лучшее оборудование для его реализации. Здесь вы можете оформить заявку на аренду студийного оборудования. Перед оформлением заявки рекомендуем ознакомиться с правилами аренды, доступными по кнопке в правом нижнем углу.\n\u2003Ниже представлена ссылка для ознакомления с нашим оборудованием.',
               style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.justify,
             ),
-            SizedBox(height: 8.0),
             TextButton(
               onPressed: () {
                 JWT.checkTokenValidity(context);
@@ -326,8 +340,7 @@ class _RentalScreenState extends State<RentalScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
-            SizedBox(height: 16.0),
+            SizedBox(height: 5.0),
             Container(
               padding: EdgeInsets.all(20.0),
               decoration: BoxDecoration(
