@@ -90,7 +90,7 @@ class _PriceScreenState extends State<PriceScreen> {
 
   Future<void> _addService(String service, String price, String category) async {
     try {
-      await REST.addService(service, price + " BYN/сут.", category);
+      await REST.addService(service, price + " BYN", category);
       await _fetchServices();
     } catch (error) {
       print('Error adding service: $error');
