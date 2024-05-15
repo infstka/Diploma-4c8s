@@ -68,13 +68,13 @@ class _LoginPageState extends State<LoginPage> {
                         AuthFormFields(
                           controller: _emailController,
                           data: Icons.email,
-                          txtHint: "Email",
+                          txtHint: "Введите email",
                           obsecure: false,
                         ),
                         AuthFormFields(
                           controller: _passwordController,
                           data: Icons.lock,
-                          txtHint: "Password",
+                          txtHint: "Введите пароль",
                           obsecure: true,
                         )
                       ],

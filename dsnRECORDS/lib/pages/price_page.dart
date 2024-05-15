@@ -302,7 +302,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Отмена'),
+              child: Text('Отмена',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -313,7 +315,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 _addService(newServiceName, newPrice, category);
                 Navigator.of(context).pop();
               },
-              child: Text('Добавить'),
+              child: Text('Добавить',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );
@@ -334,7 +338,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Отмена'),
+              child: Text('Отмена',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -342,7 +348,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 _deleteService(service['id']);
                 Navigator.of(context).pop();
               },
-              child: Text('Удалить'),
+              child: Text('Удалить',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );
@@ -386,7 +394,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Отмена'),
+              child: Text('Отмена',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -401,7 +411,9 @@ class _PriceScreenState extends State<PriceScreen> {
                 );
                 Navigator.of(context).pop();
               },
-              child: Text('Сохранить'),
+              child: Text('Сохранить',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );

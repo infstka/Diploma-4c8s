@@ -552,22 +552,24 @@ class _AdminScreenState extends State<AdminScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Детали заявки №${rentals['id']}'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('ФИО: ${rentals['fullname']}'),
-              Text('Телефон: ${rentals['phone']}'),
-              Text('Дата начала: ${rentals['start_date']}'),
-              Text('Дата конца: ${rentals['end_date']}'),
-              Text('Оборудование:'),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: equipmentNames.map<Widget>((eqName) {
-                  return Text('- $eqName');
-                }).toList(),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('ФИО: ${rentals['fullname']}'),
+                Text('Телефон: ${rentals['phone']}'),
+                Text('Дата начала: ${rentals['start_date']}'),
+                Text('Дата конца: ${rentals['end_date']}'),
+                Text('Оборудование:'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: equipmentNames.map<Widget>((eqName) {
+                    return Text('- $eqName');
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -575,7 +577,9 @@ class _AdminScreenState extends State<AdminScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Закрыть'),
+              child: Text('Закрыть',
+              style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );

@@ -136,24 +136,26 @@ class _RentalsPageState extends State<RentalsPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Заявка №${rental['id']}'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('ФИО: ${rental['fullname']}'),
-              Text('Телефон: ${rental['phone']}'),
-              Text('Дата начала: ${rental['start_date']}'),
-              Text('Дата конца: ${rental['end_date']}'),
-              Text('Оборудование:'),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: (rental['eq_names'] as String)
-                    .split(', ')
-                    .map<Widget>((eqName) {
-                  return Text('- $eqName');
-                }).toList(),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('ФИО: ${rental['fullname']}'),
+                Text('Телефон: ${rental['phone']}'),
+                Text('Дата начала: ${rental['start_date']}'),
+                Text('Дата конца: ${rental['end_date']}'),
+                Text('Оборудование:'),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: (rental['eq_names'] as String)
+                      .split(', ')
+                      .map<Widget>((eqName) {
+                    return Text('- $eqName');
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(

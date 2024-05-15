@@ -1,6 +1,7 @@
 import 'package:dsn_records/jwt/jwt_check.dart';
 import 'package:flutter/material.dart';
 import 'package:dsn_records/rest/rest_api.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dsn_records/widgets/update_profile_form_fields_widget.dart';
 import 'login_page.dart';
@@ -147,7 +148,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     ProfileFormFields(
                       controller: _usernameController,
                       data: Icons.person,
-                      txtHint: "Username",
+                      txtHint: "Введите новое имя пользователя",
                       obsecure: false,
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -158,22 +159,9 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     ),
                     SizedBox(height: 16.0),
                     ProfileFormFields(
-                      controller: _userPasswordController,
-                      data: Icons.lock,
-                      txtHint: "Password",
-                      obsecure: true,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Введите новый пароль!';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 16.0),
-                    ProfileFormFields(
                       controller: _userEmailController,
                       data: Icons.email,
-                      txtHint: "Email",
+                      txtHint: "Введите новый email",
                       obsecure: false,
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -183,8 +171,38 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                       },
                     ),
                     SizedBox(height: 16.0),
+                    ProfileFormFields(
+                      controller: _userPasswordController,
+                      data: Icons.lock,
+                      txtHint: "Введите новый пароль",
+                      obsecure: true,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Введите новый пароль!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
                     ElevatedButton(
-                      onPressed: _saveData,
+                      onPressed: () {
+                        String? emailError;
+                        String? passwordError;
+
+                        if (_userEmailController.text.isNotEmpty && !_userEmailController.text.contains('@')) {
+                          emailError = 'Email должен быть типа example@example.example!';
+                          Fluttertoast.showToast(msg: emailError, textColor: Colors.red);
+                        }
+
+                        if (_userPasswordController.text.isNotEmpty && _userPasswordController.text.length < 8) {
+                          passwordError = 'Пароль должен содержать не менее 8 символов';
+                          Fluttertoast.showToast(msg: passwordError, textColor: Colors.red);
+                        }
+
+                        if (emailError == null && passwordError == null) {
+                          _saveData();
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.black,
                         minimumSize: Size(MediaQuery.of(context).size.width * 0.3, 40),
@@ -193,7 +211,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                         'Сохранить',
                         style: TextStyle(color: Colors.white),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),

@@ -168,13 +168,21 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                           });
                         }
                       },
-                      child: Text('Выбрать изображение'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.black,
+                      ),
+                      child: Text('Выбрать изображение',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                     SizedBox(height: 20),
                     Row(
                       children: [
                         Checkbox(
                           value: _isRentable,
+                          activeColor: Colors.black,
                           onChanged: (value) {
                             setState(() {
                               _isRentable = value!;
@@ -201,6 +209,7 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                             final List<dynamic> prices =
                             snapshot.data as List<dynamic>;
                             return DropdownButton<int>(
+                              isExpanded: true,
                               hint: Text('Выберите цену'),
                               value: _selectedPriceId,
                               onChanged: (int? value) {
@@ -235,7 +244,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                       _selectedPriceId = null;
                     });
                   },
-                  child: Text('Отмена'),
+                  child: Text('Отмена',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
                 TextButton(
                   onPressed: () async {
@@ -287,7 +298,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                       }
                     }
                   },
-                  child: Text('Добавить'),
+                  child: Text('Добавить',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             );
@@ -316,7 +329,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
-              child: Text('Отмена'),
+              child: Text('Отмена',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -335,7 +350,9 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
                 }
                 Navigator.of(context).pop();
               },
-              child: Text('Удалить'),
+              child: Text('Удалить',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );

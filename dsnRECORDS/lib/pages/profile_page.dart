@@ -191,7 +191,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             JWT.checkTokenValidity(context);
                             Navigator.of(context).pop();
                           },
-                          child: Text('Нет'),
+                          child: Text('Нет',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                         TextButton(
                           onPressed: () async {
@@ -200,7 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Route route = MaterialPageRoute(builder: (_) => LoginPage());
                             Navigator.pushReplacement(context, route);
                           },
-                          child: Text('Да'),
+                          child: Text('Да',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                       ],
                     ),
@@ -232,7 +236,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           JWT.checkTokenValidity(context);
                           Navigator.of(context).pop();
                         },
-                        child: Text('Отмена'),
+                        child: Text('Отмена',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -244,7 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             MaterialPageRoute(builder: (_) => LoginPage()),
                           );
                         },
-                        child: Text('Удалить'),
+                        child: Text('Удалить',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ],
                   ),

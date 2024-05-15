@@ -151,7 +151,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 }
               },
               child: ListTile(
-                title: Center(child: Icon(Icons.add)),
+                title: Center(child: Icon(Icons.add,
+                  color: Colors.black,)),
               ),
             )
                 : SizedBox(),
@@ -223,14 +224,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
           content: Text("Вы уверены, что хотите удалить этот контакт?"),
           actions: <Widget>[
             TextButton(
-              child: Text("Отмена"),
+              child: Text("Отмена",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Удалить"),
+              child: Text("Удалить",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () async {
                 JWT.checkTokenValidity(context);
                 try {
@@ -267,14 +272,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text("Отмена"),
+              child: Text("Отмена",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Сохранить"),
+              child: Text("Сохранить",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () async {
                 JWT.checkTokenValidity(context);
                 try {
@@ -311,14 +320,18 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text("Отмена"),
+              child: Text("Отмена",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () {
                 JWT.checkTokenValidity(context);
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text("Добавить"),
+              child: Text("Добавить",
+                style: TextStyle(color: Colors.black),
+              ),
               onPressed: () async {
                 JWT.checkTokenValidity(context);
                 try {

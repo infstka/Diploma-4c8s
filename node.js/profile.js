@@ -13,29 +13,27 @@ router.put('/update/:id', verifyToken, async (req, res) => {
   }
   
   // Проверяем уникальность username и user_email, если они предоставлены
-  if (username.trim() !== '' || user_email.trim() !== '') {
-    const sqlQueryCheck = "CALL check_duplicate_user_except_current(?, ?, ?, @user_count)";
-    db.query(sqlQueryCheck, [id, username, user_email], (err, result) => {
-      db.query('SELECT @user_count', (err, result) => {
-        if (err) {
-          res.status(500).json({ error: 'Ошибка сервера' });
-        } else if (result[0]['@user_count'] > 0) {
-          // Если нашлось совпадение, возвращаем ошибку
-          res.status(400).json({ error: 'Пользователь с такими данными уже существует!' });
-        } else {
-          // Если не найдено совпадений, выполняем обновление профиля пользователя
-          const sqlQuery = "CALL update_user_profile(?, ?, ?, ?)";
-          db.query(sqlQuery, [id, username, hashedPassword, user_email], (err, result) => {
-            if (err) {
-              res.status(500).json({ error: 'Ошибка обновления профиля' });
-            } else {
-              res.status(200).json({ message: 'Профиль обновлен' });
-            }
-          });
-        }
-      });
+  const sqlQueryCheck = "CALL check_duplicate_user_except_current(?, ?, ?, @user_count)";
+  db.query(sqlQueryCheck, [id, username, user_email], (err, result) => {
+    db.query('SELECT @user_count', (err, result) => {
+      if (err) {
+        res.status(500).json({ error: 'Ошибка сервера' });
+      } else if (result[0]['@user_count'] > 0) {
+        // Если нашлось совпадение, возвращаем ошибку
+        res.status(400).json({ error: 'Пользователь с такими данными уже существует!' });
+      } else {
+        // Если не найдено совпадений, выполняем обновление профиля пользователя
+        const sqlQuery = "CALL update_user_profile(?, ?, ?, ?)";
+        db.query(sqlQuery, [id, username, hashedPassword, user_email], (err, result) => {
+          if (err) {
+            res.status(500).json({ error: 'Ошибка обновления профиля' });
+          } else {
+            res.status(200).json({ message: 'Профиль обновлен' });
+          }
+        });
+      }
     });
-  }
+  });
 });
 
 // Получить все бронирования для определенного пользователя

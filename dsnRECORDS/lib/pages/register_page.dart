@@ -78,7 +78,7 @@ class RegisterPageState extends State<RegisterPage> {
                               AuthFormFields(
                                 controller: username,
                                 data: Icons.person,
-                                txtHint: "Username",
+                                txtHint: "Имя пользователя",
                                 obsecure: false,
                               ),
                               AuthFormFields(
@@ -90,7 +90,7 @@ class RegisterPageState extends State<RegisterPage> {
                               AuthFormFields(
                                 controller: password,
                                 data: Icons.lock,
-                                txtHint: "Password",
+                                txtHint: "Пароль",
                                 obsecure: true,
                               )
                             ],
@@ -103,14 +103,24 @@ class RegisterPageState extends State<RegisterPage> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              username.text.isNotEmpty &&
-                                  password.text.isNotEmpty &&
-                                  email.text.isNotEmpty
-                                  ? doRegister(
-                                  username.text, email.text, password.text)
-                                  : Fluttertoast.showToast(
-                                  msg: 'Необходимо заполнить все поля!',
-                                  textColor: Colors.red);
+                              String? emailError;
+                              String? passwordError;
+
+                              if (email.text.isEmpty || !email.text.contains('@')) {
+                                emailError = 'Email должен быть типа example@example.example';
+                              }
+
+                              if (password.text.isEmpty || password.text.length < 8) {
+                                passwordError = 'Пароль должен содержать не менее 8 символов';
+                              }
+
+                              if (emailError != null) {
+                                Fluttertoast.showToast(msg: emailError, textColor: Colors.red);
+                              } else if (passwordError != null) {
+                                Fluttertoast.showToast(msg: passwordError, textColor: Colors.red);
+                              } else {
+                                doRegister(username.text, email.text, password.text);
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Colors.white,
