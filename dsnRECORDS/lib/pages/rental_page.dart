@@ -461,6 +461,7 @@ class _RentalScreenState extends State<RentalScreen> {
                         ? null
                         : () {
                       JWT.checkTokenValidity(context);
+                      FocusScope.of(context).unfocus();
                       _showConfirmationDialog();
                     },
                     child: Text('Отправить заявку',

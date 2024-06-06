@@ -250,7 +250,7 @@ class _RentalsPageState extends State<RentalsPage> {
               _showRentalDetailsDialog(rental);
             },
             child: ListTile(
-              title: Text('Заявка №${rental['id']}'),
+              title: Text('Заявка №${rental['id']}: ${rental['start_date']} - ${rental['end_date']}'),
             ),
           );
         },
